@@ -14,14 +14,14 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
+    <body style="font-family: 'Figtree', sans-serif; margin: 0; background-color: #f1f5f9;">
+        <div style="min-height: 100vh; background-color: #f1f5f9;">
             @include('layouts.navigation')
 
             <!-- Page Heading -->
             @isset($header)
-                <header class="bg-white dark:bg-gray-800 shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                <header style="background-color: #1e3a5f; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <div style="max-width: 1280px; margin: 0 auto; padding: 24px;">
                         {{ $header }}
                     </div>
                 </header>
