@@ -39,6 +39,8 @@
                             @php
                                 $statusColors = [
                                     'open' => ['bg' => '#e5e7eb', 'text' => '#374151', 'label' => 'Abierto'],
+                                    'pending_approval' => ['bg' => '#e0e7ff', 'text' => '#3730a3', 'label' => 'Pendiente de Aprobación'],
+                                    'rejected' => ['bg' => '#fee2e2', 'text' => '#991b1b', 'label' => 'Rechazado'],
                                     'assigned' => ['bg' => '#dbeafe', 'text' => '#1e40af', 'label' => 'Asignado'],
                                     'in_progress' => ['bg' => '#fef9c3', 'text' => '#854d0e', 'label' => 'En Progreso'],
                                     'resolved' => ['bg' => '#dcfce7', 'text' => '#166534', 'label' => 'Resuelto'],

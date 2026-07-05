@@ -9,7 +9,13 @@ class TicketPolicy
 {
     public function view(User $user, Ticket $ticket): bool
     {
-        return in_array($user->role, ['admin', 'agent']) || $user->id === $ticket->user_id;
+        if (in_array($user->role, ['admin', 'agent']) || $user->id === $ticket->user_id) {
+            return true;
+        }
+
+        return $ticket->approvals()
+            ->whereHas('approvalLevel', fn ($q) => $q->where('role', $user->role))
+            ->exists();
     }
 
     public function update(User $user, Ticket $ticket): bool

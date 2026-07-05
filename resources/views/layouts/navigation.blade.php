@@ -10,19 +10,39 @@
                 <!-- Navigation Links -->
                 <div style="display: flex; gap: 4px;">
                     <a href="{{ route('dashboard') }}"
-                       style="color: #ffffff; text-decoration: none; padding: 10px 14px; border-radius: 4px; font-size: 14px; font-weight: 500; {{ request()->routeIs('dashboard') ? 'background-color: rgba(255,255,255,0.15);' : '' }}">
+                       style="color: #ffffff; text-decoration: none; padding: 10px 14px; border-radius: 4px; font-size: 14px; font-weight: {{ request()->routeIs('dashboard') ? '700' : '500' }}; {{ request()->routeIs('dashboard') ? 'background-color: rgba(255,255,255,0.18); box-shadow: inset 0 -2px 0 #2563eb;' : '' }}">
                         Dashboard
                     </a>
                     <a href="{{ route('tickets.index') }}"
-                       style="color: #ffffff; text-decoration: none; padding: 10px 14px; border-radius: 4px; font-size: 14px; font-weight: 500; {{ request()->routeIs('tickets.*') ? 'background-color: rgba(255,255,255,0.15);' : '' }}">
+                       style="color: #ffffff; text-decoration: none; padding: 10px 14px; border-radius: 4px; font-size: 14px; font-weight: {{ request()->routeIs('tickets.*') ? '700' : '500' }}; {{ request()->routeIs('tickets.*') ? 'background-color: rgba(255,255,255,0.18); box-shadow: inset 0 -2px 0 #2563eb;' : '' }}">
                         Tickets
                     </a>
+                    @if(in_array(Auth::user()->role, ['approver', 'admin']))
+                        <a href="{{ route('approvals.index') }}"
+                           style="color: #ffffff; text-decoration: none; padding: 10px 14px; border-radius: 4px; font-size: 14px; font-weight: {{ request()->routeIs('approvals.*') ? '700' : '500' }}; {{ request()->routeIs('approvals.*') ? 'background-color: rgba(255,255,255,0.18); box-shadow: inset 0 -2px 0 #2563eb;' : '' }}">
+                            Aprobaciones
+                        </a>
+                    @endif
+                    @if(Auth::user()->role === 'admin')
+                        <a href="{{ route('admin.users.index') }}"
+                           style="color: #ffffff; text-decoration: none; padding: 10px 14px; border-radius: 4px; font-size: 14px; font-weight: {{ request()->routeIs('admin.*') ? '700' : '500' }}; {{ request()->routeIs('admin.*') ? 'background-color: rgba(255,255,255,0.18); box-shadow: inset 0 -2px 0 #2563eb;' : '' }}">
+                            Administración
+                        </a>
+                    @endif
                 </div>
             </div>
 
             <!-- Settings Dropdown -->
-            <div style="display: flex; align-items: center;">
-                <x-dropdown align="right" width="48">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                @php
+                    $roleLabels = ['admin' => 'Admin', 'agent' => 'Agente', 'approver' => 'Aprobador', 'user' => 'Usuario'];
+                    $roleLabel = $roleLabels[Auth::user()->role] ?? ucfirst(Auth::user()->role);
+                @endphp
+                <span style="background-color: rgba(255,255,255,0.15); color: #ffffff; border: 1px solid rgba(255,255,255,0.4); padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                    {{ $roleLabel }}
+                </span>
+
+                <x-dropdown align="right" width="56">
                     <x-slot name="trigger">
                         <button type="button" style="display: flex; align-items: center; gap: 6px; background: transparent; border: none; color: #ffffff; font-size: 14px; font-weight: 500; cursor: pointer; padding: 8px 12px;">
                             <span>{{ Auth::user()->name }}</span>
@@ -33,19 +53,24 @@
                     </x-slot>
 
                     <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Profile') }}
-                        </x-dropdown-link>
+                        <div style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0;">
+                            <p style="margin: 0; font-size: 14px; font-weight: 600; color: #1e293b;">{{ Auth::user()->name }}</p>
+                            <p style="margin: 2px 0 0 0; font-size: 12px; color: #64748b;">{{ Auth::user()->email }}</p>
+                        </div>
+
+                        <a href="{{ route('profile.edit') }}" style="display: block; padding: 10px 16px; font-size: 14px; color: #374151; text-decoration: none;">
+                            Mi Perfil
+                        </a>
 
                         <!-- Authentication -->
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
 
-                            <x-dropdown-link :href="route('logout')"
-                                    onclick="event.preventDefault();
-                                                this.closest('form').submit();">
-                                {{ __('Log Out') }}
-                            </x-dropdown-link>
+                            <a href="{{ route('logout') }}"
+                               onclick="event.preventDefault(); this.closest('form').submit();"
+                               style="display: block; padding: 10px 16px; font-size: 14px; color: #dc2626; text-decoration: none; border-top: 1px solid #e2e8f0;">
+                                Cerrar sesión
+                            </a>
                         </form>
                     </x-slot>
                 </x-dropdown>

@@ -38,4 +38,9 @@ class Ticket extends Model
 {
     return $this->hasMany(TicketComment::class);
 }
+
+    public function approvals(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(TicketApproval::class);
+    }
 }
