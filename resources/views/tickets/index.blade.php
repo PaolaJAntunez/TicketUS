@@ -14,13 +14,48 @@
                 </div>
             @endif
 
-            <div style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
-                <h3 style="font-size: 18px; font-weight: 600; color: #1e293b; margin: 0;">Lista de Tickets</h3>
-                <a href="{{ route('tickets.create') }}"
-                   style="background-color: #1e3a5f; color: #ffffff; padding: 10px 18px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 500;">
-                    Nuevo Ticket
-                </a>
-            </div>
+            <div style="margin-bottom:16px; display:flex; justify-content:space-between; align-items:center;">
+
+    <h3 style="font-size:18px; font-weight:600; color:#1e293b; margin:0;">
+        Lista de Tickets
+    </h3>
+
+    <div style="display:flex; gap:10px;">
+
+        @if(auth()->user()->role == 'admin')
+
+            <a href="{{ route('reports.tickets.excel', request()->query()) }}" style="background:#15803d;
+          color:white;
+          padding:10px 18px;
+          border-radius:6px;
+          text-decoration:none;"> Excel </a>
+
+            <a href="{{ route('reports.tickets.pdf', request()->query()) }}" style="
+        background:#b91c1c;
+        color:white;
+        padding:10px 18px;
+        border-radius:6px;
+        text-decoration:none;">
+    PDF
+</a>
+
+        @endif
+
+        <a href="{{ route('tickets.create') }}"
+           style="background:#1e3a5f;
+                  color:white;
+                  padding:10px 18px;
+                  border-radius:6px;
+                  text-decoration:none;">
+            Nuevo Ticket
+        </a>
+
+    </div>
+
+</div>
+
+            <x-ticket-filters :categories="$categories"/>
+            
 
             <div style="background-color: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden;">
                 <table style="width: 100%; border-collapse: collapse;">

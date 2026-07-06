@@ -4,6 +4,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ReportController;
 
 Route::get('/', function () {
     return Auth::check()
@@ -23,6 +24,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/reports/tickets/excel', [ReportController::class,'excel']) ->name('reports.tickets.excel');
+    Route::get('/reports/tickets/pdf', [ReportController::class,'pdf']) ->name('reports.tickets.pdf');
 });
 use App\Http\Controllers\TicketController;
 

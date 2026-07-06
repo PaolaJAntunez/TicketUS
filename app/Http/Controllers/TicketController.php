@@ -16,18 +16,45 @@ use Illuminate\Validation\Rule;
 
 class TicketController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $user = Auth::user();
+         $user = Auth::user();
 
-        if ($user->role === 'admin' || $user->role === 'agent') {
-            $tickets = Ticket::with(['category', 'user', 'agent'])->latest()->get();
-        } else {
-            $tickets = Ticket::with(['category', 'user', 'agent'])
-                ->where('user_id', $user->id)
-                ->latest()
-                ->get();
-        }
+    // Consulta base
+    if ($user->role === 'admin' || $user->role === 'agent') {
+        $query = Ticket::with(['category', 'user', 'agent']);
+    } else {
+        $query = Ticket::with(['category', 'user', 'agent'])
+            ->where('user_id', $user->id);
+    }
+
+    // Buscar por título
+    if ($request->filled('search')) {
+        $query->where('title', 'like', '%' . $request->search . '%');
+    }
+
+    // Filtrar por categoría
+    if ($request->filled('category')) {
+        $query->where('category_id', $request->category);
+    }
+
+    // Filtrar por prioridad
+    if ($request->filled('priority')) {
+        $query->where('priority', $request->priority);
+    }
+
+    // Filtrar por estado
+    if ($request->filled('status')) {
+        $query->where('status', $request->status);
+    }
+
+    // Obtener categorías para el componente de filtros
+    $categories = Category::orderBy('name')->get();
+
+    // Obtener tickets
+    $tickets = $query->latest()->get();
+
+    return view('tickets.index', compact('tickets', 'categories'));
 
         return view('tickets.index', compact('tickets'));
     }
