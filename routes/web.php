@@ -70,3 +70,9 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+Route::get('/feedback', function () {
+    return view('feedback');
+})->middleware(['auth'])->name('feedback');
+Route::get('/settings', function () {
+    return view('settings');
+})->middleware(['auth'])->name('settings');

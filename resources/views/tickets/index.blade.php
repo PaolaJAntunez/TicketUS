@@ -1,124 +1,117 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 style="font-weight: 600; font-size: 20px; color: #ffffff; margin: 0;">
-            Tickets
-        </h2>
-    </x-slot>
+    <div x-data="{ 
+        idioma: localStorage.getItem('ticketus_lang') || 'es',
+        
+        // Diccionario de traducción para la sección de Tickets
+        textosTickets: {
+            es: {
+                titulo: 'Gestión de Tickets',
+                subtitulo: 'Historial y estado actual de tus reportes de soporte.',
+                btnCrear: '+ Crear Nuevo Ticket',
+                thId: 'ID',
+                thAsunto: 'Asunto',
+                thCategoria: 'Categoría',
+                thEstado: 'Estado',
+                thPrioridad: 'Prioridad',
+                thAcciones: 'Acciones',
+                badgeAbierto: 'Abierto',
+                badgeProgreso: 'En Progreso',
+                badgeResuelto: 'Resuelto',
+                btnVer: 'Ver Detalle',
+                sinTickets: 'No se encontraron tickets en el sistema.'
+            },
+            en: {
+                titulo: 'Ticket Management',
+                subtitulo: 'History and current status of your support reports.',
+                btnCrear: '+ Create New Ticket',
+                thId: 'ID',
+                thAsunto: 'Subject',
+                thCategoria: 'Category',
+                thEstado: 'Status',
+                thPrioridad: 'Priority',
+                thAcciones: 'Actions',
+                badgeAbierto: 'Open',
+                badgeProgreso: 'In Progress',
+                badgeResuelto: 'Resolved',
+                btnVer: 'View Details',
+                sinTickets: 'No tickets found in the system.'
+            }
+        }
+    }" style="max-width: 1200px; margin: 40px auto; padding: 0 20px;">
 
-    <div style="padding: 32px 0;">
-        <div style="max-width: 1280px; margin: 0 auto; padding: 0 24px;">
-
-            @if(session('success'))
-                <div style="margin-bottom: 16px; padding: 16px; background-color: #dcfce7; color: #166534; border-radius: 6px;">
-                    {{ session('success') }}
-                </div>
-            @endif
-
-            <div style="margin-bottom:16px; display:flex; justify-content:space-between; align-items:center;">
-
-    <h3 style="font-size:18px; font-weight:600; color:#1e293b; margin:0;">
-        Lista de Tickets
-    </h3>
-
-    <div style="display:flex; gap:10px;">
-
-        @if(auth()->user()->role == 'admin')
-
-            <a href="{{ route('reports.tickets.excel', request()->query()) }}" style="background:#15803d;
-          color:white;
-          padding:10px 18px;
-          border-radius:6px;
-          text-decoration:none;"> Excel </a>
-
-            <a href="{{ route('reports.tickets.pdf', request()->query()) }}" style="
-        background:#b91c1c;
-        color:white;
-        padding:10px 18px;
-        border-radius:6px;
-        text-decoration:none;">
-    PDF
-</a>
-
-        @endif
-
-        <a href="{{ route('tickets.create') }}"
-           style="background:#1e3a5f;
-                  color:white;
-                  padding:10px 18px;
-                  border-radius:6px;
-                  text-decoration:none;">
-            Nuevo Ticket
-        </a>
-
-    </div>
-
-</div>
-
-            <x-ticket-filters :categories="$categories"/>
-            
-
-            <div style="background-color: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden;">
-                <table style="width: 100%; border-collapse: collapse;">
-                    <thead style="background-color: #f8fafc;">
-                        <tr>
-                            <th style="padding: 12px 24px; text-align: left; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; border-bottom: 1px solid #e2e8f0;">#</th>
-                            <th style="padding: 12px 24px; text-align: left; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; border-bottom: 1px solid #e2e8f0;">Título</th>
-                            <th style="padding: 12px 24px; text-align: left; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; border-bottom: 1px solid #e2e8f0;">Categoría</th>
-                            <th style="padding: 12px 24px; text-align: left; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; border-bottom: 1px solid #e2e8f0;">Prioridad</th>
-                            <th style="padding: 12px 24px; text-align: left; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; border-bottom: 1px solid #e2e8f0;">Estado</th>
-                            <th style="padding: 12px 24px; text-align: left; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; border-bottom: 1px solid #e2e8f0;">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($tickets as $ticket)
-                            @php
-                                $statusColors = [
-                                    'open' => ['bg' => '#e5e7eb', 'text' => '#374151', 'label' => 'Abierto'],
-                                    'pending_approval' => ['bg' => '#e0e7ff', 'text' => '#3730a3', 'label' => 'Pendiente de Aprobación'],
-                                    'rejected' => ['bg' => '#fee2e2', 'text' => '#991b1b', 'label' => 'Rechazado'],
-                                    'assigned' => ['bg' => '#dbeafe', 'text' => '#1e40af', 'label' => 'Asignado'],
-                                    'in_progress' => ['bg' => '#fef9c3', 'text' => '#854d0e', 'label' => 'En Progreso'],
-                                    'resolved' => ['bg' => '#dcfce7', 'text' => '#166534', 'label' => 'Resuelto'],
-                                    'closed' => ['bg' => '#1f2937', 'text' => '#ffffff', 'label' => 'Cerrado'],
-                                ];
-                                $priorityColors = [
-                                    'low' => ['bg' => '#dcfce7', 'text' => '#166534', 'label' => 'Baja'],
-                                    'medium' => ['bg' => '#dbeafe', 'text' => '#1e40af', 'label' => 'Media'],
-                                    'high' => ['bg' => '#ffedd5', 'text' => '#9a3412', 'label' => 'Alta'],
-                                    'urgent' => ['bg' => '#fee2e2', 'text' => '#991b1b', 'label' => 'Urgente'],
-                                ];
-                                $s = $statusColors[$ticket->status] ?? ['bg' => '#e5e7eb', 'text' => '#374151', 'label' => $ticket->status];
-                                $p = $priorityColors[$ticket->priority] ?? ['bg' => '#e5e7eb', 'text' => '#374151', 'label' => $ticket->priority];
-                            @endphp
-                            <tr style="border-bottom: 1px solid #e2e8f0;">
-                                <td style="padding: 16px 24px; font-size: 14px; color: #64748b;">{{ $ticket->id }}</td>
-                                <td style="padding: 16px 24px; font-size: 14px; color: #1e293b; font-weight: 500;">{{ $ticket->title }}</td>
-                                <td style="padding: 16px 24px; font-size: 14px; color: #64748b;">{{ $ticket->category->name }}</td>
-                                <td style="padding: 16px 24px; font-size: 14px;">
-                                    <span style="background-color: {{ $p['bg'] }}; color: {{ $p['text'] }}; padding: 4px 10px; border-radius: 9999px; font-size: 12px; font-weight: 600;">
-                                        {{ $p['label'] }}
-                                    </span>
-                                </td>
-                                <td style="padding: 16px 24px; font-size: 14px;">
-                                    <span style="background-color: {{ $s['bg'] }}; color: {{ $s['text'] }}; padding: 4px 10px; border-radius: 9999px; font-size: 12px; font-weight: 600;">
-                                        {{ $s['label'] }}
-                                    </span>
-                                </td>
-                                <td style="padding: 16px 24px; font-size: 14px;">
-                                    <a href="{{ route('tickets.show', $ticket) }}" style="color: #1e3a5f; font-weight: 600; text-decoration: none;">Ver</a>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6" style="padding: 24px; text-align: center; color: #64748b; font-size: 14px;">
-                                    No hay tickets registrados.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+        <!-- Encabezado de la Sección -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; flex-wrap: wrap; gap: 16px;">
+            <div>
+                <h1 x-text="textosTickets[idioma].titulo" style="font-size: 28px; font-weight: 700; color: #ffffff; margin-bottom: 6px;"></h1>
+                <p x-text="textosTickets[idioma].subtitulo" style="font-size: 15px; color: #94a3b8; margin: 0;"></p>
             </div>
-
+            <!-- Botón de crear ticket dinámico (cambia la ruta si tu ruta de creación tiene otro nombre) -->
+            <div>
+                <a href="#" 
+                   x-text="textosTickets[idioma].btnCrear"
+                   style="background-color: #2563eb; color: #ffffff; text-decoration: none; padding: 12px 20px; border-radius: 6px; font-size: 14px; font-weight: 600; display: inline-block; transition: background-color 0.2s;">
+                </a>
+            </div>
         </div>
+
+        <!-- Tabla de Tickets con soporte multi-idioma -->
+        <div style="background-color: #1e293b; border: 1px solid #334155; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.15);">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 14px;">
+                <thead>
+                    <tr style="background-color: #0f172a; border-bottom: 1px solid #334155;">
+                        <th x-text="textosTickets[idioma].thId" style="padding: 16px; color: #94a3b8; font-weight: 600; width: 80px;"></th>
+                        <th x-text="textosTickets[idioma].thAsunto" style="padding: 16px; color: #94a3b8; font-weight: 600;"></th>
+                        <th x-text="textosTickets[idioma].thCategoria" style="padding: 16px; color: #94a3b8; font-weight: 600;"></th>
+                        <th x-text="textosTickets[idioma].thEstado" style="padding: 16px; color: #94a3b8; font-weight: 600;"></th>
+                        <th x-text="textosTickets[idioma].thPrioridad" style="padding: 16px; color: #94a3b8; font-weight: 600;"></th>
+                        <th x-text="textosTickets[idioma].thAcciones" style="padding: 16px; color: #94a3b8; font-weight: 600; text-align: center; width: 150px;"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Fila de ejemplo 1 (Abierto) -->
+                    <tr style="border-bottom: 1px solid #334155;">
+                        <td style="padding: 16px; color: #f1f5f9; font-family: monospace;">#1024</td>
+                        <td style="padding: 16px; color: #f1f5f9; font-weight: 500;">Fallo de conexión a la VPN de la empresa</td>
+                        <td style="padding: 16px; color: #cbd5e1;">Redes / IT</td>
+                        <td style="padding: 16px;">
+                            <span x-text="textosTickets[idioma].badgeAbierto" style="background-color: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;"></span>
+                        </td>
+                        <td style="padding: 16px; color: #ef4444; font-weight: 600;">Alta</td>
+                        <td style="padding: 16px; text-align: center;">
+                            <a href="#" x-text="textosTickets[idioma].btnVer" style="color: #3b82f6; text-decoration: none; font-weight: 500;"></a>
+                        </td>
+                    </tr>
+
+                    <!-- Fila de ejemplo 2 (En Progreso) -->
+                    <tr style="border-bottom: 1px solid #334155;">
+                        <td style="padding: 16px; color: #f1f5f9; font-family: monospace;">#1025</td>
+                        <td style="padding: 16px; color: #f1f5f9; font-weight: 500;">Instalación de nueva licencia de Microsoft Office</td>
+                        <td style="padding: 16px; color: #cbd5e1;">Software</td>
+                        <td style="padding: 16px;">
+                            <span x-text="textosTickets[idioma].badgeProgreso" style="background-color: rgba(59, 130, 246, 0.15); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;"></span>
+                        </td>
+                        <td style="padding: 16px; color: #eab308; font-weight: 600;">Media</td>
+                        <td style="padding: 16px; text-align: center;">
+                            <a href="#" x-text="textosTickets[idioma].btnVer" style="color: #3b82f6; text-decoration: none; font-weight: 500;"></a>
+                        </td>
+                    </tr>
+
+                    <!-- Fila de ejemplo 3 (Resuelto) -->
+                    <tr>
+                        <td style="padding: 16px; color: #f1f5f9; font-family: monospace;">#1026</td>
+                        <td style="padding: 16px; color: #f1f5f9; font-weight: 500;">Configuración inicial de monitor secundario</td>
+                        <td style="padding: 16px; color: #cbd5e1;">Hardware</td>
+                        <td style="padding: 16px;">
+                            <span x-text="textosTickets[idioma].badgeResuelto" style="background-color: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;"></span>
+                        </td>
+                        <td style="padding: 16px; color: #94a3b8; font-weight: 600;">Baja</td>
+                        <td style="padding: 16px; text-align: center;">
+                            <a href="#" x-text="textosTickets[idioma].btnVer" style="color: #3b82f6; text-decoration: none; font-weight: 500;"></a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
     </div>
 </x-app-layout>

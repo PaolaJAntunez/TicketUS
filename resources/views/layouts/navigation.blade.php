@@ -1,4 +1,75 @@
-<nav x-data="{ open: false }" style="background-color: #1e3a5f; box-shadow: 0 2px 4px rgba(0,0,0,0.15);">
+<nav x-data="{ 
+    open: false, 
+    darkMode: localStorage.getItem('dark-mode') === 'true',
+    idioma: localStorage.getItem('ticketus_lang') || 'es',
+    
+    // Diccionario para la barra de navegación global
+    textosNav: {
+        es: {
+            dashboard: 'Dashboard',
+            tickets: 'Tickets',
+            aprobaciones: 'Aprobaciones',
+            administracion: 'Administración',
+            perfil: 'Mi Perfil',
+            settings: 'Settings',
+            feedback: 'Feedback',
+            claro: '☀️ Modo Claro',
+            oscuro: '🌙 Modo Oscuro',
+            cerrar: 'Cerrar sesión'
+        },
+        en: {
+            dashboard: 'Dashboard',
+            tickets: 'Tickets',
+            aprobaciones: 'Approvals',
+            administracion: 'Administration',
+            perfil: 'My Profile',
+            settings: 'Settings',
+            feedback: 'Feedback',
+            claro: '☀️ Light Mode',
+            oscuro: '🌙 Dark Mode',
+            cerrar: 'Log Out'
+        }
+    }
+}" 
+x-init="
+    $watch('darkMode', value => {
+        localStorage.setItem('dark-mode', value);
+        if (value) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    });
+    if (darkMode) {
+        document.documentElement.classList.add('dark');
+    }
+"
+x-bind:style="darkMode ? 'background-color: #0f172a; border-bottom: 1px solid #334155;' : 'background-color: #1e3a5f; box-shadow: 0 2px 4px rgba(0,0,0,0.15);'">
+    
+    <!-- ESTILOS INYECTADOS PARA FORZAR EL MODO OSCURO -->
+    <template x-if="darkMode">
+        <style>
+            body, main, .py-12, .bg-gray-100, [style*="background-color"] {
+                background-color: #0f172a !important; 
+            }
+            .bg-white, .card, [style*="background-color: #ffffff"], [style*="background-color: white"] {
+                background-color: #1e293b !important;
+                border-color: #334155 !important;
+            }
+            h1, h2, h3, h4, th, .text-gray-900, .text-slate-900, [style*="color: #1e293b"] {
+                color: #f1f5f9 !important;
+            }
+            p, td, label, .text-gray-600, .text-slate-600 {
+                color: #cbd5e1 !important;
+            }
+            input, select, textarea {
+                background-color: #1e293b !important;
+                color: #f1f5f9 !important;
+                border-color: #475569 !important;
+            }
+        </style>
+    </template>
+
     <div style="max-width: 1280px; margin: 0 auto; padding: 0 24px;">
         <div style="display: flex; justify-content: space-between; align-items: center; height: 64px;">
             <div style="display: flex; align-items: center;">
@@ -7,26 +78,26 @@
                     TicketUS
                 </a>
 
-                <!-- Navigation Links -->
+                <!-- Navigation Links Traducidos Dinámicamente -->
                 <div style="display: flex; gap: 4px;">
                     <a href="{{ route('dashboard') }}"
+                       x-text="textosNav[idioma].dashboard"
                        style="color: #ffffff; text-decoration: none; padding: 10px 14px; border-radius: 4px; font-size: 14px; font-weight: {{ request()->routeIs('dashboard') ? '700' : '500' }}; {{ request()->routeIs('dashboard') ? 'background-color: rgba(255,255,255,0.18); box-shadow: inset 0 -2px 0 #2563eb;' : '' }}">
-                        Dashboard
                     </a>
                     <a href="{{ route('tickets.index') }}"
+                       x-text="textosNav[idioma].tickets"
                        style="color: #ffffff; text-decoration: none; padding: 10px 14px; border-radius: 4px; font-size: 14px; font-weight: {{ request()->routeIs('tickets.*') ? '700' : '500' }}; {{ request()->routeIs('tickets.*') ? 'background-color: rgba(255,255,255,0.18); box-shadow: inset 0 -2px 0 #2563eb;' : '' }}">
-                        Tickets
                     </a>
                     @if(in_array(Auth::user()->role, ['approver', 'admin']))
                         <a href="{{ route('approvals.index') }}"
+                           x-text="textosNav[idioma].aprobaciones"
                            style="color: #ffffff; text-decoration: none; padding: 10px 14px; border-radius: 4px; font-size: 14px; font-weight: {{ request()->routeIs('approvals.*') ? '700' : '500' }}; {{ request()->routeIs('approvals.*') ? 'background-color: rgba(255,255,255,0.18); box-shadow: inset 0 -2px 0 #2563eb;' : '' }}">
-                            Aprobaciones
                         </a>
                     @endif
                     @if(Auth::user()->role === 'admin')
                         <a href="{{ route('admin.users.index') }}"
+                           x-text="textosNav[idioma].administracion"
                            style="color: #ffffff; text-decoration: none; padding: 10px 14px; border-radius: 4px; font-size: 14px; font-weight: {{ request()->routeIs('admin.*') ? '700' : '500' }}; {{ request()->routeIs('admin.*') ? 'background-color: rgba(255,255,255,0.18); box-shadow: inset 0 -2px 0 #2563eb;' : '' }}">
-                            Administración
                         </a>
                     @endif
                 </div>
@@ -54,22 +125,33 @@
 
                     <x-slot name="content">
                         <div style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0;">
-                            <p style="margin: 0; font-size: 14px; font-weight: 600; color: #1e293b;">{{ Auth::user()->name }}</p>
-                            <p style="margin: 2px 0 0 0; font-size: 12px; color: #64748b;">{{ Auth::user()->email }}</p>
+                            <p style="margin: 0; font-size: 14px; font-weight: 600; color: #ffffff;">{{ Auth::user()->name }}</p>
+                            <p style="margin: 2px 0 0 0; font-size: 12px; color: #94a3b8;">{{ Auth::user()->email }}</p>
                         </div>
 
-                        <a href="{{ route('profile.edit') }}" style="display: block; padding: 10px 16px; font-size: 14px; color: #374151; text-decoration: none;">
-                            Mi Perfil
+                        <a href="{{ route('profile.edit') }}" x-text="textosNav[idioma].perfil" style="display: block; padding: 10px 16px; font-size: 14px; color: #e2e8f0; text-decoration: none;">
                         </a>
+
+                        <a href="/settings" @click.stop x-text="textosNav[idioma].settings" style="display: block; padding: 10px 16px; font-size: 14px; color: #e2e8f0; text-decoration: none;">
+                        </a>
+
+                        <a href="/feedback" x-text="textosNav[idioma].feedback" style="display: block; padding: 10px 16px; font-size: 14px; color: #e2e8f0; text-decoration: none;">
+                        </a>
+
+                        <!-- BOTÓN INTERRUPTOR MODO OSCURO -->
+                        <button type="button" 
+                                @click="darkMode = !darkMode" 
+                                style="display: block; width: 100%; text-align: left; padding: 10px 16px; font-size: 14px; color: #e2e8f0; background: transparent; border: none; cursor: pointer;">
+                            <span x-text="darkMode ? textosNav[idioma].claro : textosNav[idioma].oscuro"></span>
+                        </button>
 
                         <!-- Authentication -->
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-
                             <a href="{{ route('logout') }}"
                                onclick="event.preventDefault(); this.closest('form').submit();"
+                               x-text="textosNav[idioma].cerrar"
                                style="display: block; padding: 10px 16px; font-size: 14px; color: #dc2626; text-decoration: none; border-top: 1px solid #e2e8f0;">
-                                Cerrar sesión
                             </a>
                         </form>
                     </x-slot>
