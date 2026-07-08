@@ -3,11 +3,11 @@
     darkMode: localStorage.getItem('dark-mode') === 'true',
     idioma: localStorage.getItem('ticketus_lang') || 'es',
     
-    // Diccionario para la barra de navegación global
     textosNav: {
         es: {
             dashboard: 'Dashboard',
             tickets: 'Tickets',
+            faqs: 'Preguntas Frecuentes',
             aprobaciones: 'Aprobaciones',
             administracion: 'Administración',
             perfil: 'Mi Perfil',
@@ -20,6 +20,7 @@
         en: {
             dashboard: 'Dashboard',
             tickets: 'Tickets',
+            faqs: 'FAQs',
             aprobaciones: 'Approvals',
             administracion: 'Administration',
             perfil: 'My Profile',
@@ -46,7 +47,6 @@ x-init="
 "
 x-bind:style="darkMode ? 'background-color: #0f172a; border-bottom: 1px solid #334155;' : 'background-color: #1e3a5f; box-shadow: 0 2px 4px rgba(0,0,0,0.15);'">
     
-    <!-- ESTILOS INYECTADOS PARA FORZAR EL MODO OSCURO -->
     <template x-if="darkMode">
         <style>
             body, main, .py-12, .bg-gray-100, [style*="background-color"] {
@@ -73,12 +73,10 @@ x-bind:style="darkMode ? 'background-color: #0f172a; border-bottom: 1px solid #3
     <div style="max-width: 1280px; margin: 0 auto; padding: 0 24px;">
         <div style="display: flex; justify-content: space-between; align-items: center; height: 64px;">
             <div style="display: flex; align-items: center;">
-                <!-- Logo -->
                 <a href="{{ route('dashboard') }}" style="color: #ffffff; font-size: 22px; font-weight: 700; letter-spacing: 0.5px; text-decoration: none; margin-right: 40px;">
                     TicketUS
                 </a>
 
-                <!-- Navigation Links Traducidos Dinámicamente -->
                 <div style="display: flex; gap: 4px;">
                     <a href="{{ route('dashboard') }}"
                        x-text="textosNav[idioma].dashboard"
@@ -87,6 +85,10 @@ x-bind:style="darkMode ? 'background-color: #0f172a; border-bottom: 1px solid #3
                     <a href="{{ route('tickets.index') }}"
                        x-text="textosNav[idioma].tickets"
                        style="color: #ffffff; text-decoration: none; padding: 10px 14px; border-radius: 4px; font-size: 14px; font-weight: {{ request()->routeIs('tickets.*') ? '700' : '500' }}; {{ request()->routeIs('tickets.*') ? 'background-color: rgba(255,255,255,0.18); box-shadow: inset 0 -2px 0 #2563eb;' : '' }}">
+                    </a>
+                    <a href="{{ route('faqs') }}"
+                       x-text="textosNav[idioma].faqs"
+                       style="color: #ffffff; text-decoration: none; padding: 10px 14px; border-radius: 4px; font-size: 14px; font-weight: {{ request()->routeIs('faqs') ? '700' : '500' }}; {{ request()->routeIs('faqs') ? 'background-color: rgba(255,255,255,0.18); box-shadow: inset 0 -2px 0 #2563eb;' : '' }}">
                     </a>
                     @if(in_array(Auth::user()->role, ['approver', 'admin']))
                         <a href="{{ route('approvals.index') }}"
@@ -103,7 +105,6 @@ x-bind:style="darkMode ? 'background-color: #0f172a; border-bottom: 1px solid #3
                 </div>
             </div>
 
-            <!-- Settings Dropdown -->
             <div style="display: flex; align-items: center; gap: 10px;">
                 @php
                     $roleLabels = ['admin' => 'Admin', 'agent' => 'Agente', 'approver' => 'Aprobador', 'user' => 'Usuario'];
@@ -138,14 +139,12 @@ x-bind:style="darkMode ? 'background-color: #0f172a; border-bottom: 1px solid #3
                         <a href="/feedback" x-text="textosNav[idioma].feedback" style="display: block; padding: 10px 16px; font-size: 14px; color: #e2e8f0; text-decoration: none;">
                         </a>
 
-                        <!-- BOTÓN INTERRUPTOR MODO OSCURO -->
                         <button type="button" 
                                 @click="darkMode = !darkMode" 
                                 style="display: block; width: 100%; text-align: left; padding: 10px 16px; font-size: 14px; color: #e2e8f0; background: transparent; border: none; cursor: pointer;">
                             <span x-text="darkMode ? textosNav[idioma].claro : textosNav[idioma].oscuro"></span>
                         </button>
 
-                        <!-- Authentication -->
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <a href="{{ route('logout') }}"
