@@ -54,8 +54,8 @@
 
         <!-- ENCABEZADO -->
         <div style="margin-bottom: 32px;">
-            <h1 x-text="textosDashboard[idioma].bienvenida" style="font-size: 28px; font-weight: 700; color: #ffffff; margin-bottom: 6px;"></h1>
-            <p x-text="textosDashboard[idioma].subtitulo" style="font-size: 15px; color: #94a3b8; margin: 0;"></p>
+            <h1 x-text="textosDashboard[idioma].bienvenida" style="font-size: 28px; font-weight: 700; color: #1e293b; margin-bottom: 6px;"></h1>
+            <p x-text="textosDashboard[idioma].subtitulo" style="font-size: 15px; color: #64748b; margin: 0;"></p>
         </div>
 
         <!-- REJILLA DE TARJETAS (MÉTRICAS) -->
@@ -99,7 +99,7 @@
             
             <!-- MANUALES / DOCUMENTACIÓN -->
             <div>
-                <h2 x-text="textosDashboard[idioma].tituloSoluciones" style="color: #ffffff; font-size: 20px; font-weight: 600; margin-bottom: 16px;"></h2>
+                <h2 x-text="textosDashboard[idioma].tituloSoluciones" style="color: #1e293b; font-size: 20px; font-weight: 600; margin-bottom: 16px;"></h2>
                 <div style="display: flex; flex-direction: column; gap: 12px;">
                     <a href="#" style="display: flex; align-items: center; justify-content: space-between; background-color: #1e293b; border: 1px solid #334155; padding: 16px; border-radius: 6px; color: #cbd5e1; text-decoration: none; transition: background 0.2s;">
                         <span x-text="textosDashboard[idioma].sol1" style="font-weight: 500;"></span>
@@ -118,7 +118,7 @@
 
             <!-- ESTADO DE LOS SERVICIOS -->
             <div>
-                <h2 x-text="textosDashboard[idioma].tituloStatus" style="color: #ffffff; font-size: 20px; font-weight: 600; margin-bottom: 16px;"></h2>
+                <h2 x-text="textosDashboard[idioma].tituloStatus" style="color: #1e293b; font-size: 20px; font-weight: 600; margin-bottom: 16px;"></h2>
                 <div style="display: flex; flex-direction: column; gap: 12px;">
                     
                     <!-- Servicio 1 -->
