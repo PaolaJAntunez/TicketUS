@@ -6,12 +6,12 @@
             es: {
                 bienvenida: '¡Bienvenido de nuevo a TicketUS!',
                 subtitulo: 'Aquí tienes un resumen del estado de tus soportes hoy.',
-                tarjeta1Titulo: 'Tickets Abiertos',
+                tarjeta1Titulo: '🎫Tickets Abiertos',
                 tarjeta1Desc: 'Esperando revisión o asignación.',
-                tarjeta2Titulo: 'En Progreso',
+                tarjeta2Titulo: '⏳En Progreso',
                 tarjeta2Desc: 'Soportes bajo atención técnica activa.',
                 tarjeta3Titulo: 'Resueltos',
-                tarjeta3Desc: 'Cerrados con éxito esta semana.',
+                tarjeta3Desc: '✅Cerrados con éxito esta semana.',
                 botonAccion: 'Ir a mis Tickets',
                 
                 tituloSoluciones: 'Manuales y Base de Conocimiento',
