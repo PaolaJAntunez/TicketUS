@@ -86,10 +86,7 @@ x-bind:style="darkMode ? 'background-color: #0f172a; border-bottom: 1px solid #3
                        x-text="textosNav[idioma].tickets"
                        style="color: #ffffff; text-decoration: none; padding: 10px 14px; border-radius: 4px; font-size: 14px; font-weight: {{ request()->routeIs('tickets.*') ? '700' : '500' }}; {{ request()->routeIs('tickets.*') ? 'background-color: rgba(255,255,255,0.18); box-shadow: inset 0 -2px 0 #2563eb;' : '' }}">
                     </a>
-                    <a href="{{ route('faqs') }}"
-                       x-text="textosNav[idioma].faqs"
-                       style="color: #ffffff; text-decoration: none; padding: 10px 14px; border-radius: 4px; font-size: 14px; font-weight: {{ request()->routeIs('faqs') ? '700' : '500' }}; {{ request()->routeIs('faqs') ? 'background-color: rgba(255,255,255,0.18); box-shadow: inset 0 -2px 0 #2563eb;' : '' }}">
-                    </a>
+                    
                     @if(in_array(Auth::user()->role, ['approver', 'admin']))
                         <a href="{{ route('approvals.index') }}"
                            x-text="textosNav[idioma].aprobaciones"
@@ -102,6 +99,10 @@ x-bind:style="darkMode ? 'background-color: #0f172a; border-bottom: 1px solid #3
                            style="color: #ffffff; text-decoration: none; padding: 10px 14px; border-radius: 4px; font-size: 14px; font-weight: {{ request()->routeIs('admin.*') ? '700' : '500' }}; {{ request()->routeIs('admin.*') ? 'background-color: rgba(255,255,255,0.18); box-shadow: inset 0 -2px 0 #2563eb;' : '' }}">
                         </a>
                     @endif
+                    <a href="{{ route('faqs') }}"
+                       x-text="textosNav[idioma].faqs"
+                       style="color: #ffffff; text-decoration: none; padding: 10px 14px; border-radius: 4px; font-size: 14px; font-weight: {{ request()->routeIs('faqs') ? '700' : '500' }}; {{ request()->routeIs('faqs') ? 'background-color: rgba(255,255,255,0.18); box-shadow: inset 0 -2px 0 #2563eb;' : '' }}">
+                    </a>
                 </div>
             </div>
 
