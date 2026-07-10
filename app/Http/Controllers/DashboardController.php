@@ -7,6 +7,7 @@ use App\Models\Ticket;
 use App\Models\TicketApproval;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -36,8 +37,12 @@ class DashboardController extends Controller
 
         $categoryBreakdown = Category::withCount('tickets')->orderByDesc('tickets_count')->get();
         $maxCategoryCount = max($categoryBreakdown->max('tickets_count'), 1);
+        $ticketsByAgent = User::where('role', 'agent') ->withCount('assignedTickets') ->get();
+        $ticketsByStatus = Ticket::select('status', DB::raw('COUNT(*) as total')) ->groupBy('status') ->get();
+        $ticketsByCategory = Category::withCount('tickets')->orderByDesc('tickets_count')->get();
+        $ticketsByMonth = Ticket::selectRaw("strftime('%m', created_at) as month, COUNT(*) as total") ->groupBy('month') ->orderBy('month')->get();
 
-        return view('dashboard', compact(
+        return view('dashboard.admin', compact(
             'totalCount',
             'openCount',
             'inProgressCount',
@@ -47,6 +52,10 @@ class DashboardController extends Controller
             'agents',
             'categoryBreakdown',
             'maxCategoryCount',
+            'ticketsByAgent',
+            'ticketsByStatus',
+            'ticketsByCategory',    
+            'ticketsByMonth'
         ));
     }
 
@@ -65,7 +74,16 @@ class DashboardController extends Controller
             ->whereDate('updated_at', today())
             ->count();
 
-        return view('dashboard', compact('assignedTickets', 'assignedCount', 'inProgressCount', 'resolvedTodayCount'));
+        $ticketsByPriority = Ticket::select('priority', DB::raw('COUNT(*) as total'))
+            ->where('assigned_to', $user->id)
+            ->groupBy('priority')
+            ->get();
+         $ticketsByStatus = Ticket::select('status', DB::raw('COUNT(*) as total'))
+            ->where('assigned_to', $user->id)
+            ->groupBy('status')
+            ->get();
+
+        return view('dashboard.agent', compact('assignedTickets', 'assignedCount', 'inProgressCount', 'resolvedTodayCount', 'ticketsByPriority', 'ticketsByStatus'));
     }
 
     protected function approverDashboard(User $user)
@@ -78,8 +96,18 @@ class DashboardController extends Controller
             ->latest('approved_at')
             ->take(10)
             ->get();
+        $pendingCount = TicketApproval::actionableForRole($user->role)->count();
+        
+        $approvedCount = TicketApproval::where('approved_by', $user->id)
+        ->where('status', 'approved')
+        ->count();
+        
+        $rejectedCount = TicketApproval::where('approved_by', $user->id)
+        ->where('status', 'rejected')
+        ->count();
+        $approvalsByStatus = TicketApproval::select('status', DB::raw('COUNT(*) as total'))->groupBy('status')->get();
 
-        return view('dashboard', compact('pendingApprovals', 'approvalHistory'));
+        return view('dashboard.approver', compact('pendingApprovals', 'approvalHistory', 'pendingCount', 'approvedCount', 'rejectedCount', 'approvalsByStatus'));
     }
 
     protected function userDashboard(User $user)
@@ -93,7 +121,10 @@ class DashboardController extends Controller
         $openCount = Ticket::where('user_id', $user->id)->where('status', 'open')->count();
         $inProgressCount = Ticket::where('user_id', $user->id)->whereIn('status', ['assigned', 'in_progress'])->count();
         $resolvedCount = Ticket::where('user_id', $user->id)->whereIn('status', ['resolved', 'closed'])->count();
+        $myTicketsByStatus = Ticket::select('status', DB::raw('COUNT(*) as total'))->where('user_id', $user->id)->groupBy('status')->get();
+        $myTicketsByMonth = Ticket::selectRaw("strftime('%m', created_at) as month, COUNT(*) as total")->where('user_id', $user->id)->groupBy('month')->orderBy('month')->get();
 
-        return view('dashboard', compact('activeTickets', 'openCount', 'inProgressCount', 'resolvedCount'));
+
+        return view('dashboard.user', compact('activeTickets', 'openCount', 'inProgressCount', 'resolvedCount','myTicketsByStatus', 'myTicketsByMonth'));
     }
 }
