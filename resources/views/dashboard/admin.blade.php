@@ -4,13 +4,25 @@
 
         @include('dashboard.partials.header')
 
+        @include('dashboard.partials.date-filter')
+
+        @include('dashboard.partials.report-buttons')
+
+        @include('dashboard.partials.pending-approvals-banner')
+
         @include('dashboard.partials.cards')
 
         @include('dashboard.partials.admin-charts')
 
-        @include('dashboard.partials.manuals')
+        @include('dashboard.partials.admin-charts-extra')
 
-        @include('dashboard.partials.services')
+        @include('dashboard.partials.admin-tables')
+
+        @include('dashboard.partials.admin-tables-extra')
+
+        @include('dashboard.partials.quick-lists')
+
+        @include('dashboard.partials.manuals')
 
     </div>
 
@@ -37,13 +49,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
         in_progress: idioma === 'es' ? 'En Progreso' : 'In Progress',
 
+        on_hold: idioma === 'es' ? 'En Espera' : 'On Hold',
+
         pending_approval: idioma === 'es'
             ? 'Pendiente de aprobación'
             : 'Pending Approval',
 
         resolved: idioma === 'es' ? 'Resuelto' : 'Resolved',
 
-        closed: idioma === 'es' ? 'Cerrado' : 'Closed'
+        closed: idioma === 'es' ? 'Cerrado' : 'Closed',
+
+        rejected: idioma === 'es' ? 'Rechazado' : 'Rejected',
+
+        cancelled: idioma === 'es' ? 'Cancelado' : 'Cancelled'
 
     };
 
@@ -55,11 +73,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
         in_progress:'#14b8a6',
 
+        on_hold:'#f97316',
+
         pending_approval:'#8b5cf6',
 
         resolved:'#22c55e',
 
-        closed:'#64748b'
+        closed:'#64748b',
+
+        rejected:'#f87171',
+
+        cancelled:'#a78bfa'
 
     };
 
@@ -148,7 +172,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         new Chart(ctxPie,{
 
-            type:'pie',
+            type:'doughnut',
 
             data:{
 
@@ -229,6 +253,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
             options:{
 
+                indexAxis:'y',
+
                 responsive:true,
 
                 maintainAspectRatio:false,
@@ -244,12 +270,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 scales:{
 
                     x:{
+                        beginAtZero:true,
                         ticks:{color:'#fff'},
                         grid:{color:'#334155'}
                     },
 
                     y:{
-                        beginAtZero:true,
                         ticks:{color:'#fff'},
                         grid:{color:'#334155'}
                     }
@@ -358,6 +384,94 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 }
 
+            }
+
+        });
+
+    }
+
+    //==========================
+    // Tickets por Prioridad y Mes (apiladas)
+    //==========================
+
+    const ctxPriorityMonth = document.getElementById('ticketsByPriorityMonthChart');
+
+    if (ctxPriorityMonth) {
+
+        const prioridadMes = @json($ticketsByPriorityMonth);
+
+        const nombresMesesPM = {
+            "01": idioma === 'es' ? "Ene":"Jan",
+            "02": idioma === 'es' ? "Feb":"Feb",
+            "03": idioma === 'es' ? "Mar":"Mar",
+            "04": idioma === 'es' ? "Abr":"Apr",
+            "05": idioma === 'es' ? "May":"May",
+            "06": idioma === 'es' ? "Jun":"Jun",
+            "07": idioma === 'es' ? "Jul":"Jul",
+            "08": idioma === 'es' ? "Ago":"Aug",
+            "09": idioma === 'es' ? "Sep":"Sep",
+            "10": idioma === 'es' ? "Oct":"Oct",
+            "11": idioma === 'es' ? "Nov":"Nov",
+            "12": idioma === 'es' ? "Dic":"Dec"
+        };
+
+        const traduccionesPrioridad = {
+            low: idioma === 'es' ? 'Baja' : 'Low',
+            medium: idioma === 'es' ? 'Media' : 'Medium',
+            high: idioma === 'es' ? 'Alta' : 'High',
+            urgent: idioma === 'es' ? 'Urgente' : 'Urgent'
+        };
+
+        const coloresPrioridad = {
+            low:'#22c55e',
+            medium:'#3b82f6',
+            high:'#f59e0b',
+            urgent:'#ef4444'
+        };
+
+        const mesesUnicos = [...new Set(prioridadMes.map(r => r.month))].sort();
+        const prioridadesOrden = ['low', 'medium', 'high', 'urgent'];
+
+        const datasetsPM = prioridadesOrden.map(function (p) {
+            return {
+                label: traduccionesPrioridad[p],
+                data: mesesUnicos.map(function (m) {
+                    const fila = prioridadMes.find(function (r) { return r.month === m && r.priority === p; });
+                    return fila ? fila.total : 0;
+                }),
+                backgroundColor: coloresPrioridad[p],
+                borderRadius: 4
+            };
+        });
+
+        new Chart(ctxPriorityMonth, {
+
+            type: 'bar',
+
+            data: {
+                labels: mesesUnicos.map(function (m) { return nombresMesesPM[m]; }),
+                datasets: datasetsPM
+            },
+
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { labels: { color: '#fff' } }
+                },
+                scales: {
+                    x: {
+                        stacked: true,
+                        ticks: { color: '#fff' },
+                        grid: { color: '#334155' }
+                    },
+                    y: {
+                        stacked: true,
+                        beginAtZero: true,
+                        ticks: { color: '#fff' },
+                        grid: { color: '#334155' }
+                    }
+                }
             }
 
         });

@@ -14,6 +14,14 @@
                 </div>
             @endif
 
+            @if($errors->any())
+                <div style="margin-bottom: 16px; padding: 16px; background-color: #fee2e2; color: #991b1b; border-radius: 6px;">
+                    @foreach($errors->all() as $error)
+                        <p style="margin: 0;">{{ $error }}</p>
+                    @endforeach
+                </div>
+            @endif
+
             @forelse($approvals as $approval)
                 <div style="background-color: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden; margin-bottom: 20px;">
                     <div style="background-color: #1e3a5f; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center;">
@@ -21,7 +29,7 @@
                             Ticket #{{ $approval->ticket->id }}: {{ $approval->ticket->title }}
                         </span>
                         <span style="background-color: rgba(255,255,255,0.15); color: #ffffff; border: 1px solid rgba(255,255,255,0.4); padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-weight: 600;">
-                            {{ $approval->approvalLevel->name }}
+                            {{ $approval->approvalLevel->name ?? 'Ad-hoc' }}
                         </span>
                     </div>
 
@@ -50,7 +58,7 @@
 
                         <div style="border-top: 1px solid #e2e8f0; padding-top: 16px; margin-top: 16px;">
                             <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 4px;">
-                                Comentario (opcional)
+                                Comentario (opcional para aprobar, obligatorio para rechazar)
                             </label>
                             <textarea form="approve-form-{{ $approval->id }}" name="comments" rows="2"
                                       style="width: 100%; border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px; box-sizing: border-box; margin-bottom: 16px;"
@@ -59,9 +67,9 @@
 
                             <div style="display: flex; justify-content: flex-end; gap: 12px;">
                                 <form id="reject-form-{{ $approval->id }}"
-                                      action="{{ route('approvals.reject', [$approval->ticket, $approval->approvalLevel]) }}"
+                                      action="{{ $approval->approvalLevel ? route('approvals.reject', [$approval->ticket, $approval->approvalLevel]) : route('approvals.adhoc.reject', $approval->ticket) }}"
                                       method="POST"
-                                      onsubmit="document.getElementById('reject-comments-{{ $approval->id }}').value = document.getElementById('comments-{{ $approval->id }}').value; return confirm('¿Rechazar este ticket?');">
+                                      onsubmit="var c = document.getElementById('comments-{{ $approval->id }}').value.trim(); if (!c) { alert('Debes indicar el motivo del rechazo.'); return false; } document.getElementById('reject-comments-{{ $approval->id }}').value = c; return confirm('¿Rechazar este ticket?');">
                                     @csrf
                                     <input type="hidden" name="comments" id="reject-comments-{{ $approval->id }}">
                                     <button type="submit"
@@ -71,7 +79,7 @@
                                 </form>
 
                                 <form id="approve-form-{{ $approval->id }}"
-                                      action="{{ route('approvals.approve', [$approval->ticket, $approval->approvalLevel]) }}"
+                                      action="{{ $approval->approvalLevel ? route('approvals.approve', [$approval->ticket, $approval->approvalLevel]) : route('approvals.adhoc.approve', $approval->ticket) }}"
                                       method="POST">
                                     @csrf
                                     <button type="submit"

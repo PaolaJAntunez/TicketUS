@@ -4,11 +4,21 @@
 
         @include('dashboard.partials.header')
 
+        @include('dashboard.partials.date-filter')
+
+        @include('dashboard.partials.report-buttons')
+
+        @include('dashboard.partials.pending-approvals-banner')
+
         @include('dashboard.partials.cards')
+
+        @include('dashboard.partials.agent-actionable')
 
         @include('dashboard.partials.agent-charts')
 
-        @include('dashboard.partials.services')
+        @include('dashboard.partials.quick-lists')
+
+        @include('dashboard.partials.manuals')
 
     </div>
 
@@ -28,13 +38,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const traduccionesEstado = {
 
+        open: idioma === 'es' ? 'Abierto' : 'Open',
+
         assigned: idioma === 'es' ? 'Asignado' : 'Assigned',
 
         in_progress: idioma === 'es' ? 'En progreso' : 'In Progress',
 
+        on_hold: idioma === 'es' ? 'En Espera' : 'On Hold',
+
+        pending_approval: idioma === 'es' ? 'Pendiente de aprobación' : 'Pending Approval',
+
         resolved: idioma === 'es' ? 'Resuelto' : 'Resolved',
 
-        closed: idioma === 'es' ? 'Cerrado' : 'Closed'
+        closed: idioma === 'es' ? 'Cerrado' : 'Closed',
+
+        rejected: idioma === 'es' ? 'Rechazado' : 'Rejected',
+
+        cancelled: idioma === 'es' ? 'Cancelado' : 'Cancelled'
 
     };
 
@@ -46,7 +66,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
         high: idioma === 'es' ? 'Alta' : 'High',
 
-        critical: idioma === 'es' ? 'Crítica' : 'Critical'
+        urgent: idioma === 'es' ? 'Urgente' : 'Urgent'
+
+    };
+
+    const coloresPrioridad = {
+
+        low:'#22c55e',
+        medium:'#3b82f6',
+        high:'#f59e0b',
+        urgent:'#ef4444'
 
     };
 
@@ -74,17 +103,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     data: prioridades.map(p => p.total),
 
-                    backgroundColor: [
-
-                        '#22c55e',
-
-                        '#3b82f6',
-
-                        '#f59e0b',
-
-                        '#ef4444'
-
-                    ],
+                    backgroundColor: prioridades.map(p => coloresPrioridad[p.priority] || '#94a3b8'),
 
                     borderRadius: 8
 

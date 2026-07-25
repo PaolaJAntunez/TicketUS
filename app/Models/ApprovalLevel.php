@@ -15,12 +15,18 @@ class ApprovalLevel extends Model
         'approval_flow_id',
         'order',
         'role',
+        'approver_id',
         'name',
     ];
 
     public function approvalFlow(): BelongsTo
     {
         return $this->belongsTo(ApprovalFlow::class);
+    }
+
+    public function approver(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approver_id');
     }
 
     public function ticketApprovals(): HasMany

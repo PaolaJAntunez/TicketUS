@@ -3,7 +3,7 @@
 <div style="margin:45px 0;">
 
     <h2 style="
-        color:#ffffff;
+        color:#1e293b;
         font-size:24px;
         font-weight:700;
         margin-bottom:25px;">

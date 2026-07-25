@@ -14,19 +14,28 @@
                 </div>
             @endif
 
-            <div style="margin-bottom: 16px; display: flex; gap: 8px;">
-                <a href="{{ route('admin.users.index') }}"
-                   style="background-color: #1e3a5f; color: #ffffff; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 500;">
-                    Usuarios
-                </a>
-                <a href="{{ route('admin.categories.index') }}"
-                   style="background-color: #ffffff; color: #1e3a5f; border: 1px solid #1e3a5f; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 500;">
-                    Categorías
-                </a>
-                <a href="{{ route('admin.approval-flows.index') }}"
-                   style="background-color: #ffffff; color: #1e3a5f; border: 1px solid #1e3a5f; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 500;">
-                    Flujos de Aprobación
-                </a>
+            <div style="margin-bottom: 16px; display: flex; gap: 8px; justify-content: space-between;">
+                <div style="display: flex; gap: 8px;">
+                    <a href="{{ route('admin.users.index') }}"
+                       style="background-color: #1e3a5f; color: #ffffff; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 500;">
+                        Usuarios
+                    </a>
+                    <a href="{{ route('admin.categories.index') }}"
+                       style="background-color: #ffffff; color: #1e3a5f; border: 1px solid #1e3a5f; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 500;">
+                        Categorías
+                    </a>
+                    <a href="{{ route('admin.approval-flows.index') }}"
+                       style="background-color: #ffffff; color: #1e3a5f; border: 1px solid #1e3a5f; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 500;">
+                        Flujos de Aprobación
+                    </a>
+                </div>
+
+                @can('manage-users')
+                    <a href="{{ route('admin.users.create') }}"
+                       style="background-color: #2563eb; color: #ffffff; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 500;">
+                        + Nuevo usuario
+                    </a>
+                @endcan
             </div>
 
             <div style="background-color: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden;">
@@ -36,16 +45,16 @@
                             <th style="padding: 12px 24px; text-align: left; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; border-bottom: 1px solid #e2e8f0;">Nombre</th>
                             <th style="padding: 12px 24px; text-align: left; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; border-bottom: 1px solid #e2e8f0;">Email</th>
                             <th style="padding: 12px 24px; text-align: left; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; border-bottom: 1px solid #e2e8f0;">Rol</th>
+                            <th style="padding: 12px 24px; text-align: left; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; border-bottom: 1px solid #e2e8f0;">Estado</th>
                             <th style="padding: 12px 24px; text-align: left; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; border-bottom: 1px solid #e2e8f0;">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         @php
                             $roleColors = [
-                                'admin'    => ['bg' => '#1e3a5f', 'text' => '#ffffff', 'label' => 'Admin'],
-                                'agent'    => ['bg' => '#dbeafe', 'text' => '#1e40af', 'label' => 'Agente'],
-                                'approver' => ['bg' => '#fef9c3', 'text' => '#854d0e', 'label' => 'Aprobador'],
-                                'user'     => ['bg' => '#e5e7eb', 'text' => '#374151', 'label' => 'Usuario'],
+                                'admin' => ['bg' => '#1e3a5f', 'text' => '#ffffff', 'label' => 'Admin'],
+                                'agent' => ['bg' => '#dbeafe', 'text' => '#1e40af', 'label' => 'Agente'],
+                                'user'  => ['bg' => '#e5e7eb', 'text' => '#374151', 'label' => 'Usuario'],
                             ];
                         @endphp
                         @forelse($users as $user)
@@ -61,6 +70,13 @@
                                     </span>
                                 </td>
                                 <td style="padding: 16px 24px; font-size: 14px;">
+                                    @if($user->is_active)
+                                        <span style="background-color: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 9999px; font-size: 12px; font-weight: 600;">Activo</span>
+                                    @else
+                                        <span style="background-color: #fee2e2; color: #991b1b; padding: 4px 10px; border-radius: 9999px; font-size: 12px; font-weight: 600;">Inactivo</span>
+                                    @endif
+                                </td>
+                                <td style="padding: 16px 24px; font-size: 14px;">
                                     <a href="{{ route('admin.users.edit', $user) }}"
                                        style="background-color: #2563eb; color: #ffffff; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 500;">
                                         Editar
@@ -69,7 +85,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" style="padding: 24px; text-align: center; color: #64748b; font-size: 14px;">
+                                <td colspan="5" style="padding: 24px; text-align: center; color: #64748b; font-size: 14px;">
                                     No hay usuarios registrados.
                                 </td>
                             </tr>

@@ -4,13 +4,19 @@
 
         @include('dashboard.partials.header')
 
+        @include('dashboard.partials.date-filter')
+
+        @include('dashboard.partials.report-buttons')
+
+        @include('dashboard.partials.pending-approvals-banner')
+
         @include('dashboard.partials.cards')
 
         @include('dashboard.partials.user-charts')
 
-        @include('dashboard.partials.manuals')
+        @include('dashboard.partials.quick-lists')
 
-        @include('dashboard.partials.services')
+        @include('dashboard.partials.manuals')
 
     </div>
 
@@ -36,9 +42,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
         in_progress: idioma === 'es' ? 'En progreso' : 'In Progress',
 
+        on_hold: idioma === 'es' ? 'En Espera' : 'On Hold',
+
+        pending_approval: idioma === 'es' ? 'Pendiente de aprobación' : 'Pending Approval',
+
         resolved: idioma === 'es' ? 'Resuelto' : 'Resolved',
 
-        closed: idioma === 'es' ? 'Cerrado' : 'Closed'
+        closed: idioma === 'es' ? 'Cerrado' : 'Closed',
+
+        rejected: idioma === 'es' ? 'Rechazado' : 'Rejected',
+
+        cancelled: idioma === 'es' ? 'Cancelado' : 'Cancelled'
 
     };
 
@@ -50,9 +64,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
         in_progress:'#14b8a6',
 
+        on_hold:'#f97316',
+
+        pending_approval:'#8b5cf6',
+
         resolved:'#22c55e',
 
-        closed:'#64748b'
+        closed:'#64748b',
+
+        rejected:'#f87171',
+
+        cancelled:'#a78bfa'
 
     };
 

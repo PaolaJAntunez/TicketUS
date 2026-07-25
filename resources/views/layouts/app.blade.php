@@ -16,6 +16,15 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+        {{-- Utilidad compartida para texto "muted" que vive directo sobre el
+             fondo de la página (no dentro de una tarjeta blanca ni de una
+             oscura) y por eso necesita su propio color por tema. --}}
+        <style>
+            .text-muted-adaptive { color: #64748b; }
+            html.dark .text-muted-adaptive { color: #94a3b8 !important; }
+            [x-cloak] { display: none !important; }
+        </style>
     </head>
     <body style="font-family: 'Figtree', sans-serif; margin: 0; background-color: #f1f5f9;">
         <div style="min-height: 100vh; background-color: #f1f5f9;">
@@ -29,6 +38,14 @@
                     </div>
                 </header>
             @endisset
+
+            @if(session('error'))
+                <div style="max-width: 1280px; margin: 16px auto 0; padding: 0 24px;">
+                    <div style="padding: 16px; background-color: #fee2e2; color: #991b1b; border-radius: 6px;">
+                        {{ session('error') }}
+                    </div>
+                </div>
+            @endif
 
             <!-- Page Content -->
             <main>

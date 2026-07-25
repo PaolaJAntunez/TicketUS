@@ -1,4 +1,4 @@
-@props(['categories'])
+@props(['categories', 'agents'])
 
 <form method="GET"
       action="{{ url()->current() }}"
@@ -6,7 +6,7 @@
              background:#fff;
              padding:20px;
              border-radius:10px;
-             margin-bottom:25px;
+             margin-bottom:20px;
              box-shadow:0 2px 8px rgba(0,0,0,.08);
              box-sizing:border-box;">
 
@@ -16,7 +16,7 @@
                 align-items:end;">
 
         {{-- Buscar --}}
-        <div style="flex:2;">
+        <div style="flex:2; min-width:180px;">
 
             <label x-text="textosTickets[idioma].lblBuscar"
                    style="display:block;
@@ -31,12 +31,13 @@
                    style="width:100%;
                           padding:10px;
                           border:1px solid #d1d5db;
-                          border-radius:6px;">
+                          border-radius:6px;
+                          box-sizing:border-box;">
 
         </div>
 
-        {{-- Categoría --}}
-        <div style="flex:1;">
+        {{-- Categoría / Aplicación --}}
+        <div style="flex:1; min-width:160px;">
 
             <label x-text="textosTickets[idioma].lblCategoria"
                    style="display:block;
@@ -48,72 +49,23 @@
                     style="width:100%;
                            padding:10px;
                            border:1px solid #d1d5db;
-                           border-radius:6px;">
+                           border-radius:6px;
+                           box-sizing:border-box;">
 
-                <option value=""
-                        x-text="textosTickets[idioma].optTodas">
-                </option>
+                <option value="" x-text="textosTickets[idioma].optTodas"></option>
 
                 @foreach($categories as $category)
-
-                    <option value="{{ $category->id }}"
-                            {{ request('category') == $category->id ? 'selected' : '' }}>
-
+                    <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>
                         {{ $category->name }}
-
                     </option>
-
                 @endforeach
 
             </select>
 
         </div>
 
-        {{-- Prioridad --}}
-        <div style="flex:1;">
-
-            <label x-text="textosTickets[idioma].lblPrioridad"
-                   style="display:block;
-                          margin-bottom:5px;
-                          font-weight:600;">
-            </label>
-
-            <select name="priority"
-                    style="width:100%;
-                           padding:10px;
-                           border:1px solid #d1d5db;
-                           border-radius:6px;">
-
-                <option value=""
-                        x-text="textosTickets[idioma].optTodas">
-                </option>
-
-                <option value="low"
-                        {{ request('priority')=='low'?'selected':'' }}
-                        x-text="textosTickets[idioma].prioridadBaja">
-                </option>
-
-                <option value="medium"
-                        {{ request('priority')=='medium'?'selected':'' }}
-                        x-text="textosTickets[idioma].prioridadMedia">
-                </option>
-
-                <option value="high"
-                        {{ request('priority')=='high'?'selected':'' }}
-                        x-text="textosTickets[idioma].prioridadAlta">
-                </option>
-
-                <option value="urgent"
-                        {{ request('priority')=='urgent'?'selected':'' }}
-                        x-text="textosTickets[idioma].prioridadUrgente">
-                </option>
-
-            </select>
-
-        </div>
-
         {{-- Estado --}}
-        <div style="flex:1;">
+        <div style="flex:1; min-width:160px;">
 
             <label x-text="textosTickets[idioma].lblEstado"
                    style="display:block;
@@ -125,41 +77,46 @@
                     style="width:100%;
                            padding:10px;
                            border:1px solid #d1d5db;
-                           border-radius:6px;">
+                           border-radius:6px;
+                           box-sizing:border-box;">
 
-                <option value=""
-                        x-text="textosTickets[idioma].optTodos">
-                </option>
+                <option value="" x-text="textosTickets[idioma].optTodos"></option>
+                <option value="open" {{ request('status')=='open'?'selected':'' }} x-text="textosTickets[idioma].estadoAbierto"></option>
+                <option value="assigned" {{ request('status')=='assigned'?'selected':'' }} x-text="textosTickets[idioma].estadoAsignado"></option>
+                <option value="pending_approval" {{ request('status')=='pending_approval'?'selected':'' }} x-text="textosTickets[idioma].estadoPendiente"></option>
+                <option value="in_progress" {{ request('status')=='in_progress'?'selected':'' }} x-text="textosTickets[idioma].estadoProgreso"></option>
+                <option value="on_hold" {{ request('status')=='on_hold'?'selected':'' }} x-text="textosTickets[idioma].estadoEnEspera"></option>
+                <option value="resolved" {{ request('status')=='resolved'?'selected':'' }} x-text="textosTickets[idioma].estadoResuelto"></option>
+                <option value="closed" {{ request('status')=='closed'?'selected':'' }} x-text="textosTickets[idioma].estadoCerrado"></option>
+                <option value="rejected" {{ request('status')=='rejected'?'selected':'' }}>Rechazado</option>
+                <option value="cancelled" {{ request('status')=='cancelled'?'selected':'' }} x-text="textosTickets[idioma].estadoCancelado"></option>
 
-                <option value="open"
-                        {{ request('status')=='open'?'selected':'' }}
-                        x-text="textosTickets[idioma].estadoAbierto">
-                </option>
+            </select>
 
-                <option value="assigned"
-                        {{ request('status')=='assigned'?'selected':'' }}
-                        x-text="textosTickets[idioma].estadoAsignado">
-                </option>
+        </div>
 
-                <option value="pending_approval"
-                        {{ request('status')=='pending_approval'?'selected':'' }}
-                        x-text="textosTickets[idioma].estadoPendiente">
-                </option>
+        {{-- Asignado a --}}
+        <div style="flex:1; min-width:160px;">
 
-                <option value="in_progress"
-                        {{ request('status')=='in_progress'?'selected':'' }}
-                        x-text="textosTickets[idioma].estadoProgreso">
-                </option>
+            <label style="display:block; margin-bottom:5px; font-weight:600;">
+                Asignado a
+            </label>
 
-                <option value="resolved"
-                        {{ request('status')=='resolved'?'selected':'' }}
-                        x-text="textosTickets[idioma].estadoResuelto">
-                </option>
+            <select name="assigned_to"
+                    style="width:100%;
+                           padding:10px;
+                           border:1px solid #d1d5db;
+                           border-radius:6px;
+                           box-sizing:border-box;">
 
-                <option value="closed"
-                        {{ request('status')=='closed'?'selected':'' }}
-                        x-text="textosTickets[idioma].estadoCerrado">
-                </option>
+                <option value="">Todos</option>
+                <option value="0" {{ request('assigned_to') === '0' ? 'selected' : '' }}>Sin asignar</option>
+
+                @foreach($agents as $agent)
+                    <option value="{{ $agent->id }}" {{ request('assigned_to') == $agent->id ? 'selected' : '' }}>
+                        {{ $agent->name }}
+                    </option>
+                @endforeach
 
             </select>
 

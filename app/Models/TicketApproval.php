@@ -13,6 +13,7 @@ class TicketApproval extends Model
     protected $fillable = [
         'ticket_id',
         'approval_level_id',
+        'approver_id',
         'status',
         'approved_by',
         'comments',
@@ -42,16 +43,55 @@ class TicketApproval extends Model
     }
 
     /**
+     * Aprobador ajustado solo para este ticket (override). Null si este nivel
+     * usa el aprobador por defecto del flujo, o si aún no se ha ajustado.
+     */
+    public function approver(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approver_id');
+    }
+
+    /**
+     * Aprobador que realmente decide sobre esta fila: el override del ticket
+     * si existe, si no el aprobador por defecto del nivel del flujo. Para
+     * aprobaciones ad-hoc (sin approval_level_id) solo existe el override.
+     */
+    public function effectiveApprover(): ?User
+    {
+        return $this->approver ?? $this->approvalLevel?->approver;
+    }
+
+    public function isAdhoc(): bool
+    {
+        return $this->approval_level_id === null;
+    }
+
+    /**
      * Pending approvals that are actually actionable right now: the lowest-order
      * level per ticket whose lower-order siblings (if any) are all approved.
+     * Ad-hoc approvals (sin flujo) no tienen orden que respetar, así que siempre
+     * son accionables. Admins ven todo lo accionable; el resto solo ve aquello
+     * donde son el aprobador efectivo (override del ticket, o el del nivel).
      */
-    public static function actionableForRole(?string $role = null)
+    public static function actionableForUser(User $user)
     {
-        return static::with(['ticket.user', 'ticket.category', 'approvalLevel'])
+        $isAdmin = $user->role === 'admin';
+
+        return static::with(['ticket.user', 'ticket.category', 'approvalLevel', 'approver'])
             ->where('status', 'pending')
-            ->when($role, fn ($query) => $query->whereHas('approvalLevel', fn ($q) => $q->where('role', $role)))
+            ->when(! $isAdmin, fn ($query) => $query->where(function ($q) use ($user) {
+                $q->where('approver_id', $user->id)
+                    ->orWhere(function ($q2) use ($user) {
+                        $q2->whereNull('approver_id')
+                            ->whereHas('approvalLevel', fn ($q3) => $q3->where('approver_id', $user->id));
+                    });
+            }))
             ->get()
             ->filter(function (self $approval) {
+                if (! $approval->approvalLevel) {
+                    return true;
+                }
+
                 return ! static::where('ticket_id', $approval->ticket_id)
                     ->where('status', '!=', 'approved')
                     ->whereHas('approvalLevel', fn ($q) => $q->where('order', '<', $approval->approvalLevel->order))

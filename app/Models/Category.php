@@ -15,11 +15,25 @@ class Category extends Model
         'name',
         'description',
         'requires_approval',
+        'is_active',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'requires_approval' => 'boolean',
+            'is_active' => 'boolean',
+        ];
+    }
 
     public function tickets(): HasMany
     {
         return $this->hasMany(Ticket::class);
+    }
+
+    public function subcategories(): HasMany
+    {
+        return $this->hasMany(Subcategory::class)->orderBy('name');
     }
 
     public function approvalFlow(): HasOne

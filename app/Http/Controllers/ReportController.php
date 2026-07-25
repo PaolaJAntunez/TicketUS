@@ -7,6 +7,7 @@ use App\Exports\TicketsExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Ticket;
+use Illuminate\Support\Facades\Auth;
 
 class ReportController extends Controller
 {
@@ -21,6 +22,14 @@ class ReportController extends Controller
     public function pdf(Request $request)
 {
     $query = Ticket::with('category');
+
+    // Mismo scoping que TicketController::filteredTicketsQuery(): admin y
+    // agent ven todos los tickets, el resto solo los propios. Sin esto,
+    // cualquier usuario autenticado podía descargar el PDF de todos.
+    $user = Auth::user();
+    if (! in_array($user->role, ['admin', 'agent'], true)) {
+        $query->where('user_id', $user->id);
+    }
 
     if ($request->filled('search')) {
         $query->where('title', 'like', '%' . $request->search . '%');

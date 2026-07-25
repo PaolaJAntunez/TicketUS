@@ -41,17 +41,26 @@
                                       placeholder="Detalla el problema lo más posible">{{ old('description') }}</textarea>
                         </div>
 
-                        <div style="margin-bottom: 16px;">
-                            <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 4px;">Categoría</label>
-                            <select name="category_id"
-                                    style="width: 100%; border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px; box-sizing: border-box;">
-                                <option value="">Selecciona una categoría</option>
-                                @foreach($categories as $category)
-                                    <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
-                                        {{ $category->name }}
-                                    </option>
-                                @endforeach
-                            </select>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                            <div>
+                                <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 4px;">Categoría</label>
+                                <select name="category_id" id="category_id"
+                                        style="width: 100%; border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px; box-sizing: border-box;">
+                                    <option value="">Selecciona una categoría</option>
+                                    @foreach($categories as $category)
+                                        <option value="{{ $category->id }}" {{ old('category_id', $selectedCategoryId) == $category->id ? 'selected' : '' }}>
+                                            {{ $category->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 4px;">Subcategoría</label>
+                                <select name="subcategory_id" id="subcategory_id"
+                                        style="width: 100%; border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px; box-sizing: border-box;">
+                                    <option value="">Selecciona primero una categoría</option>
+                                </select>
+                            </div>
                         </div>
 
                         <div style="margin-bottom: 24px;">
@@ -81,4 +90,49 @@
             </div>
         </div>
     </div>
+
+    <script>
+        (function () {
+            const subcategoriesByCategory = @json(
+                $categories->mapWithKeys(fn ($c) => [
+                    $c->id => $c->subcategories->map(fn ($s) => ['id' => $s->id, 'name' => $s->name])->values(),
+                ])
+            );
+            const preselectedSubcategoryId = @json(old('subcategory_id', $selectedSubcategoryId));
+
+            const categorySelect = document.getElementById('category_id');
+            const subcategorySelect = document.getElementById('subcategory_id');
+
+            function populateSubcategories(categoryId, selectedId) {
+                const subs = subcategoriesByCategory[categoryId] || [];
+                subcategorySelect.innerHTML = '';
+
+                if (!categoryId || subs.length === 0) {
+                    const opt = document.createElement('option');
+                    opt.value = '';
+                    opt.textContent = categoryId ? 'Sin subcategorías para esta categoría' : 'Selecciona primero una categoría';
+                    subcategorySelect.appendChild(opt);
+                    subcategorySelect.disabled = true;
+                    return;
+                }
+
+                subcategorySelect.disabled = false;
+                const placeholder = document.createElement('option');
+                placeholder.value = '';
+                placeholder.textContent = 'Selecciona una subcategoría (opcional)';
+                subcategorySelect.appendChild(placeholder);
+
+                subs.forEach((s) => {
+                    const opt = document.createElement('option');
+                    opt.value = s.id;
+                    opt.textContent = s.name;
+                    if (selectedId && String(selectedId) === String(s.id)) opt.selected = true;
+                    subcategorySelect.appendChild(opt);
+                });
+            }
+
+            categorySelect.addEventListener('change', () => populateSubcategories(categorySelect.value, null));
+            populateSubcategories(categorySelect.value, preselectedSubcategoryId);
+        })();
+    </script>
 </x-app-layout>

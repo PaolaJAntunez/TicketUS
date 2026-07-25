@@ -60,8 +60,8 @@
 
         <!-- ENCABEZADO CON BUSCADOR -->
         <div style="text-align: center; margin-bottom: 48px;">
-            <h1 x-text="textosFaqs[idioma].titulo" style="font-size: 32px; font-weight: 700; color: #ffffff; margin-bottom: 8px;"></h1>
-            <p x-text="textosFaqs[idioma].subtitulo" style="font-size: 16px; color: #94a3b8; margin-bottom: 24px;"></p>
+            <h1 x-text="textosFaqs[idioma].titulo" style="font-size: 32px; font-weight: 700; color: #1e293b; margin-bottom: 8px;"></h1>
+            <p class="text-muted-adaptive" x-text="textosFaqs[idioma].subtitulo" style="font-size: 16px; margin-bottom: 24px;"></p>
             
             <div style="max-width: 600px; margin: 0 auto; position: relative;">
                 <input type="text" 
@@ -77,7 +77,7 @@
             
             <!-- ACORDEÓN DE PREGUNTAS -->
             <div>
-                <h2 x-text="textosFaqs[idioma].tituloSeccion" style="color: #ffffff; font-size: 20px; font-weight: 600; margin-bottom: 16px;"></h2>
+                <h2 x-text="textosFaqs[idioma].tituloSeccion" style="color: #1e293b; font-size: 20px; font-weight: 600; margin-bottom: 16px;"></h2>
                 <div style="display: flex; flex-direction: column; gap: 12px;">
                     
                     <!-- FAQ 1 -->
@@ -129,9 +129,9 @@
 
             <!-- BLOQUE LATERAL: CANALES DE ATENCIÓN DIRECTA -->
             <div style="background-color: rgba(37, 99, 235, 0.08); border: 1px solid #2563eb; padding: 24px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                <h3 x-text="textosFaqs[idioma].soporteTitulo" style="color: #ffffff; font-size: 18px; font-weight: 600; margin: 0 0 10px 0;"></h3>
-                <p x-text="textosFaqs[idioma].soporteDesc" style="color: #94a3b8; font-size: 14px; margin: 0 0 18px 0; line-height: 1.5;"></p>
-                <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: #cbd5e1;">
+                <h3 x-text="textosFaqs[idioma].soporteTitulo" style="color: #1e293b; font-size: 18px; font-weight: 600; margin: 0 0 10px 0;"></h3>
+                <p class="text-muted-adaptive" x-text="textosFaqs[idioma].soporteDesc" style="font-size: 14px; margin: 0 0 18px 0; line-height: 1.5;"></p>
+                <div class="text-muted-adaptive" style="display: flex; flex-direction: column; gap: 10px; font-size: 13px;">
                     <div>🕒 <span x-text="textosFaqs[idioma].soporteHorario"></span></div>
                     <div>📞 <span x-text="textosFaqs[idioma].soporteExt"></span></div>
                     <div>✉️ <span x-text="textosFaqs[idioma].soporteEmail"></span></div>

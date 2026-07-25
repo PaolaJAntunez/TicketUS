@@ -38,8 +38,15 @@
                             <select name="role" style="width: 100%; border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px; box-sizing: border-box;">
                                 <option value="user" {{ $user->role == 'user' ? 'selected' : '' }}>Usuario</option>
                                 <option value="agent" {{ $user->role == 'agent' ? 'selected' : '' }}>Agente</option>
-                                <option value="approver" {{ $user->role == 'approver' ? 'selected' : '' }}>Aprobador</option>
                                 <option value="admin" {{ $user->role == 'admin' ? 'selected' : '' }}>Admin</option>
+                            </select>
+                        </div>
+
+                        <div style="margin-bottom: 24px;">
+                            <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 4px;">Estado</label>
+                            <select name="is_active" style="width: 100%; border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px; box-sizing: border-box;">
+                                <option value="1" {{ $user->is_active ? 'selected' : '' }}>Activo</option>
+                                <option value="0" {{ ! $user->is_active ? 'selected' : '' }}>Inactivo</option>
                             </select>
                         </div>
 

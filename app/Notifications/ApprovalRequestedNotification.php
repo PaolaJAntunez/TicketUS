@@ -14,7 +14,7 @@ class ApprovalRequestedNotification extends Notification
 
     public function __construct(
         public Ticket $ticket,
-        public ApprovalLevel $level,
+        public ?ApprovalLevel $level = null,
     ) {
     }
 
@@ -25,12 +25,17 @@ class ApprovalRequestedNotification extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
-        return (new MailMessage)
+        $message = (new MailMessage)
             ->subject('Aprobación requerida: '.$this->ticket->title)
             ->greeting('¡Hola '.$notifiable->name.'!')
             ->line('Se requiere tu aprobación para el siguiente ticket.')
-            ->line('Título: '.$this->ticket->title)
-            ->line('Nivel de aprobación: '.$this->level->name)
+            ->line('Título: '.$this->ticket->title);
+
+        if ($this->level) {
+            $message->line('Nivel de aprobación: '.$this->level->name);
+        }
+
+        return $message
             ->line('Solicitante: '.$this->ticket->user->name)
             ->action('Revisar aprobación', route('approvals.index'))
             ->line('Por favor revisa esta solicitud lo antes posible.');

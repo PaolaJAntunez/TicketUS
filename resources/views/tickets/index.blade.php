@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div x-data="{ 
+    <div x-data="{
         idioma: localStorage.getItem('ticketus_lang') || 'es',
 
         // Diccionario de traducción para la sección de Tickets
@@ -30,10 +30,12 @@
                 // Estados
                 estadoAbierto: 'Abierto',
                 estadoAsignado: 'Asignado',
-                estadoPendiente: 'Pendiente',
+                estadoPendiente: 'Pendiente de Aprobación',
                 estadoProgreso: 'En Progreso',
+                estadoEnEspera: 'En Espera',
                 estadoResuelto: 'Resuelto',
                 estadoCerrado: 'Cerrado',
+                estadoCancelado: 'Cancelado',
 
                 // Prioridades
                 prioridadBaja: 'Baja',
@@ -41,23 +43,6 @@
                 prioridadAlta: 'Alta',
                 prioridadUrgente: 'Urgente',
 
-                // Encabezados de tabla
-                thId: 'ID',
-                thAsunto: 'Asunto',
-                thCategoria: 'Categoría',
-                thEstado: 'Estado',
-                thPrioridad: 'Prioridad',
-                thAcciones: 'Acciones',
-
-                // Badges
-                badgeAbierto: 'Abierto',
-                badgeProgreso: 'En Progreso',
-                badgeResuelto: 'Resuelto',
-
-                // Acciones
-                btnVer: 'Ver Detalle',
-
-                // Mensajes
                 sinTickets: 'No se encontraron tickets en el sistema.'
             },
 
@@ -65,12 +50,10 @@
                 titulo: 'Ticket Management',
                 subtitulo: 'History and current status of your support reports.',
 
-                // Top buttons
                 btnCrear: '+ Create New Ticket',
                 btnExcel: '📊 Excel',
                 btnPdf: '📄 PDF',
 
-                // Filters
                 lblBuscar: 'Search',
                 lblCategoria: 'Category',
                 lblPrioridad: 'Priority',
@@ -84,87 +67,111 @@
                 btnBuscar: 'Search',
                 btnLimpiar: 'Clear',
 
-                // Status
                 estadoAbierto: 'Open',
                 estadoAsignado: 'Assigned',
                 estadoPendiente: 'Pending Approval',
                 estadoProgreso: 'In Progress',
+                estadoEnEspera: 'On Hold',
                 estadoResuelto: 'Resolved',
                 estadoCerrado: 'Closed',
+                estadoCancelado: 'Cancelled',
 
-                // Priorities
                 prioridadBaja: 'Low',
                 prioridadMedia: 'Medium',
                 prioridadAlta: 'High',
                 prioridadUrgente: 'Urgent',
 
-                // Table headers
-                thId: 'ID',
-                thAsunto: 'Subject',
-                thCategoria: 'Category',
-                thEstado: 'Status',
-                thPrioridad: 'Priority',
-                thAcciones: 'Actions',
-
-                // Badges
-                badgeAbierto: 'Open',
-                badgeProgreso: 'In Progress',
-                badgeResuelto: 'Resolved',
-
-                // Actions
-                btnVer: 'View Details',
-
-                // Messages
                 sinTickets: 'No tickets found in the system.'
             }
         }
-    }" style="max-width:1200px; margin:40px auto; padding:0 20px;">
+    }" style="max-width:1600px; margin:40px auto; padding:0 20px;">
 
-        <!-- Encabezado de la Sección -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; flex-wrap: wrap; gap: 16px;">
-            <div>
-                <h1 x-text="textosTickets[idioma].titulo" style="font-size: 28px; font-weight: 700; color: #ffffff; margin-bottom: 6px;"></h1>
-                <p x-text="textosTickets[idioma].subtitulo" style="font-size: 15px; color: #94a3b8; margin: 0;"></p>
+        @if(session('success'))
+            <div style="margin-bottom: 16px; padding: 16px; background-color: #dcfce7; color: #166534; border-radius: 6px;">
+                {{ session('success') }}
             </div>
-            <!-- Botón de crear ticket dinámico  -->
-            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        @endif
 
-    <a href="{{ route('tickets.create') }}"
-       x-text="textosTickets[idioma].btnCrear"
-       style="background-color:#2563eb; color:#ffffff; text-decoration:none; padding:12px 20px; border-radius:6px; font-size:14px; font-weight:600; display:inline-block; transition:background-color .2s;">
-    </a>
+        {{-- Encabezado de la Sección --}}
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+            <div>
+                <h1 x-text="textosTickets[idioma].titulo" style="font-size: 28px; font-weight: 700; color: #1e293b; margin-bottom: 6px;"></h1>
+                <p class="text-muted-adaptive" x-text="textosTickets[idioma].subtitulo" style="font-size: 15px; margin: 0;"></p>
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                {{-- Toggle Tabla / Kanban --}}
+                <div style="display:flex; border:1px solid #cbd5e1; border-radius:6px; overflow:hidden;">
+                    <a href="{{ route('tickets.index', request()->query()) }}"
+                       style="padding:10px 16px; font-size:13px; font-weight:600; text-decoration:none; color:#ffffff; background-color:#1e3a5f;">
+                        <i class="ti ti-list"></i> Vista Tabla
+                    </a>
+                    <a href="{{ route('tickets.kanban', request()->query()) }}"
+                       style="padding:10px 16px; font-size:13px; font-weight:600; text-decoration:none; color:#374151; background-color:#f1f5f9;">
+                        <i class="ti ti-layout-kanban"></i> Vista Kanban
+                    </a>
+                </div>
+                <a href="{{ route('tickets.create') }}"
+                   x-text="textosTickets[idioma].btnCrear"
+                   style="background-color: #2563eb; color: #ffffff; text-decoration:none; padding:12px 20px; border-radius:6px; font-size:14px; font-weight:600; display:inline-block;">
+                </a>
+                <a href="{{ route('reports.tickets.excel') }}"
+                   x-text="textosTickets[idioma].btnExcel"
+                   style="background-color: #16a34a; color: #ffffff; text-decoration:none; padding:12px 20px; border-radius:6px; font-size:14px; font-weight:600; display:inline-block;">
+                </a>
+                <a href="{{ route('reports.tickets.pdf') }}"
+                   target="_blank"
+                   x-text="textosTickets[idioma].btnPdf"
+                   style="background-color: #dc2626; color: #ffffff; text-decoration:none; padding:12px 20px; border-radius:6px; font-size:14px; font-weight:600; display:inline-block;">
+                </a>
+            </div>
+        </div>
 
-    <a href="{{ route('reports.tickets.excel') }}"
-       x-text="textosTickets[idioma].btnExcel"
-       style="background-color:#16a34a; color:#ffffff; text-decoration:none; padding:12px 20px; border-radius:6px; font-size:14px; font-weight:600; display:inline-block; transition:background-color .2s;">
-    </a>
+        <x-ticket-filters :categories="$categories" :agents="$agents" />
 
-    <a href="{{ route('reports.tickets.pdf') }}"
-       target="_blank"
-       x-text="textosTickets[idioma].btnPdf"
-       style="background-color:#dc2626; color:#ffffff; text-decoration:none; padding:12px 20px; border-radius:6px; font-size:14px; font-weight:600; display:inline-block; transition:background-color .2s;">
-    </a>
-</div>
+        {{-- CSS propio de la tabla de monitoreo: reacciona a la clase "dark"
+             que layouts.navigation ya aplica en <html> al alternar el tema.
+             Se maneja aparte del hack global porque esta tabla tiene color
+             de fondo propio por fila (zebra), y la heurística global no
+             puede distinguirlo de forma segura. --}}
+        <style>
+            .ticket-row:nth-child(even) { background-color: #f8fafc; }
+            .ticket-row:hover { background-color: #eff6ff; }
 
-        <x-ticket-filters :categories="$categories" />
+            html.dark .ticket-table-wrap { background-color: #1e293b !important; border-color: #334155 !important; }
+            html.dark .ticket-th { background-color: #0f172a !important; color: #94a3b8 !important; border-bottom-color: #334155 !important; }
+            html.dark .ticket-row { border-bottom-color: #334155 !important; }
+            html.dark .ticket-row:nth-child(even) { background-color: #16213a !important; }
+            html.dark .ticket-row:hover { background-color: #1e3a5f !important; }
+            html.dark .ticket-td { color: #e2e8f0 !important; }
+        </style>
 
-        <!-- Tabla de Tickets con soporte multi-idioma -->
-        <div style="width:100%;
-            background-color:#1e293b;
-            border:1px solid #334155;
+        {{-- Tarjeta de total + encabezado de la tabla --}}
+        <div style="display:flex; justify-content:flex-end; margin-bottom:12px;">
+            <div style="background-color: #ffffff; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,.1); padding:12px 24px; display:flex; align-items:center; gap:12px;">
+                <span style="font-size:13px; color: #64748b; font-weight:600; text-transform:uppercase; letter-spacing:.5px;">Total de tickets</span>
+                <span style="background-color: #1e3a5f; color: #ffffff; font-size:16px; font-weight:700; padding:4px 14px; border-radius:9999px;">
+                    {{ $tickets->count() }}
+                </span>
+            </div>
+        </div>
+
+        {{-- Tabla de monitoreo --}}
+        <div class="ticket-table-wrap" style="width:100%;
+            background-color: #ffffff;
+            border:1px solid #e2e8f0;
             border-radius:8px;
-            overflow:hidden;
-            box-shadow:0 4px 6px rgba(0,0,0,.15);
+            overflow:auto;
+            max-height:75vh;
+            box-shadow:0 1px 3px rgba(0,0,0,.1);
             box-sizing:border-box;">
-            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 14px;">
+            <table style="width: 100%; min-width: 1280px; border-collapse: collapse; text-align: left; font-size: 13px;">
                 <thead>
-                    <tr style="background-color: #0f172a; border-bottom: 1px solid #334155;">
-                        <th x-text="textosTickets[idioma].thId" style="padding: 16px; color: #94a3b8; font-weight: 600; width: 80px;"></th>
-                        <th x-text="textosTickets[idioma].thAsunto" style="padding: 16px; color: #94a3b8; font-weight: 600;"></th>
-                        <th x-text="textosTickets[idioma].thCategoria" style="padding: 16px; color: #94a3b8; font-weight: 600;"></th>
-                        <th x-text="textosTickets[idioma].thEstado" style="padding: 16px; color: #94a3b8; font-weight: 600;"></th>
-                        <th x-text="textosTickets[idioma].thPrioridad" style="padding: 16px; color: #94a3b8; font-weight: 600;"></th>
-                        <th x-text="textosTickets[idioma].thAcciones" style="padding: 16px; color: #94a3b8; font-weight: 600; text-align: center; width: 150px;"></th>
+                    <tr>
+                        @foreach(['SITIO','DEPTO','ID','SOLICITANTE','ESTATUS','ASIGNADO A','CREADO','VENCE','RESTANTE','TÍTULO','DETALLE'] as $col)
+                            <th class="ticket-th" style="position: sticky; top: 0; z-index: 1; background-color: #f8fafc; padding: 12px 16px; color: #64748b; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; border-bottom: 2px solid #e2e8f0; white-space: nowrap; {{ $col === 'DETALLE' ? 'text-align:center;' : '' }}">
+                                {{ $col }}
+                            </th>
+                        @endforeach
                     </tr>
                 </thead>
                 <tbody>
@@ -172,131 +179,72 @@
 @if($tickets->count())
 
     @foreach($tickets as $ticket)
+        @php
+            $site = $ticket->user->department ?? '—';
 
-    <tr style="border-bottom:1px solid #334155;">
+            $remainingHours = $ticket->due_date
+                ? ($ticket->due_date->timestamp - now()->timestamp) / 3600
+                : null;
 
-        <td style="padding:16px;color:#f1f5f9;font-family:monospace;">
-            #{{ $ticket->id }}
-        </td>
+            if ($remainingHours === null) {
+                $remainingBg = '#f1f5f9'; $remainingText = '#64748b';
+            } elseif ($remainingHours < 0) {
+                $remainingBg = '#fee2e2'; $remainingText = '#991b1b';
+            } elseif ($remainingHours < 24) {
+                $remainingBg = '#fef9c3'; $remainingText = '#854d0e';
+            } else {
+                $remainingBg = '#dcfce7'; $remainingText = '#166534';
+            }
+        @endphp
 
-        <td style="padding:16px;color:#f1f5f9;font-weight:500;">
-            {{ $ticket->title }}
-        </td>
+        <tr class="ticket-row" onclick="window.location='{{ route('tickets.show', $ticket) }}'" style="cursor:pointer; border-bottom:1px solid #e2e8f0;">
 
-        <td style="padding:16px;color:#cbd5e1;">
-            {{ $ticket->category->name ?? 'Sin categoría' }}
-        </td>
+            <td class="ticket-td" style="padding:12px 16px; color: #374151; white-space:nowrap;">{{ $site }}</td>
 
-        <td style="padding:16px;">
+            <td class="ticket-td" style="padding:12px 16px; color: #374151; white-space:nowrap;">{{ $site }}</td>
 
-            @if($ticket->status=='open')
+            <td class="ticket-td" style="padding:12px 16px; color: #1e293b; font-family:monospace; font-weight:600;">#{{ $ticket->id }}</td>
 
-                <span style="background:rgba(239,68,68,.15);
-                             color:#ef4444;
-                             padding:4px 8px;
-                             border-radius:4px;">
-                    Abierto
+            <td class="ticket-td" style="padding:12px 16px; color: #1e293b; white-space:nowrap;">{{ $ticket->user->name }}</td>
+
+            <td style="padding:12px 16px;" onclick="event.stopPropagation();">
+                <x-ticket-status-menu :ticket="$ticket" :approval-candidates="$approvalCandidates" />
+            </td>
+
+            <td class="ticket-td" style="padding:12px 16px; color: #374151; white-space:nowrap;">{{ $ticket->agent?->name ?? 'Sin asignar' }}</td>
+
+            <td class="ticket-td" style="padding:12px 16px; color: #64748b; white-space:nowrap;">{{ $ticket->created_at->format('d/m/Y H:i') }}</td>
+
+            <td class="ticket-td" style="padding:12px 16px; color: #64748b; white-space:nowrap;">{{ $ticket->due_date?->format('d/m/Y H:i') ?? '—' }}</td>
+
+            <td style="padding:12px 16px;">
+                <span style="background-color: {{ $remainingBg }}; color: {{ $remainingText }}; padding:4px 10px; border-radius:9999px; font-size:11px; font-weight:700; white-space:nowrap;">
+                    {{ $ticket->remaining ?? '—' }}
                 </span>
+            </td>
 
-            @elseif($ticket->status=='assigned')
+            <td class="ticket-td" style="padding:12px 16px; color: #1e293b; font-weight:500; max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                {{ $ticket->title }}
+            </td>
 
-                <span style="background:rgba(59,130,246,.15);
-                             color:#3b82f6;
-                             padding:4px 8px;
-                             border-radius:4px;">
-                    Asignado
-                </span>
+            <td style="padding:12px 16px; text-align:center;">
+                <a href="{{ route('tickets.show', $ticket) }}"
+                   onclick="event.stopPropagation();"
+                   title="Ver detalle"
+                   style="color: #2563eb; display:inline-flex; align-items:center; justify-content:center; text-decoration:none; font-size:18px;">
+                    <i class="ti ti-eye"></i>
+                </a>
+            </td>
 
-            @elseif($ticket->status=='pending_approval')
-
-                <span style="background:rgba(234,179,8,.15);
-                             color:#eab308;
-                             padding:4px 8px;
-                             border-radius:4px;">
-                    Pendiente
-                </span>
-
-            @elseif($ticket->status=='in_progress')
-
-                <span style="background:rgba(59,130,246,.15);
-                             color:#3b82f6;
-                             padding:4px 8px;
-                             border-radius:4px;">
-                    En progreso
-                </span>
-
-            @elseif($ticket->status=='resolved')
-
-                <span style="background:rgba(16,185,129,.15);
-                             color:#10b981;
-                             padding:4px 8px;
-                             border-radius:4px;">
-                    Resuelto
-                </span>
-
-            @else
-
-                <span style="background:#475569;
-                             color:white;
-                             padding:4px 8px;
-                             border-radius:4px;">
-                    Cerrado
-                </span>
-
-            @endif
-
-        </td>
-
-        <td style="padding:16px;color:#f1f5f9;">
-
-            @switch($ticket->priority)
-
-                @case('urgent')
-                    <span style="color:#dc2626;font-weight:bold;">Urgente</span>
-                    @break
-
-                @case('high')
-                    <span style="color:#ef4444;font-weight:bold;">Alta</span>
-                    @break
-
-                @case('medium')
-                    <span style="color:#eab308;font-weight:bold;">Media</span>
-                    @break
-
-                @default
-                    <span style="color:#22c55e;font-weight:bold;">Baja</span>
-
-            @endswitch
-
-        </td>
-
-        <td style="padding:16px;text-align:center;">
-
-            <a href="{{ route('tickets.show',$ticket) }}"
-               style="color:#3b82f6;text-decoration:none;font-weight:600;">
-                Ver detalle
-            </a>
-
-        </td>
-
-    </tr>
+        </tr>
 
     @endforeach
 
 @else
 
-<tr>
-
-    <td colspan="6"
-        style="padding:25px;
-               text-align:center;
-               color:#94a3b8;">
-
-        No se encontraron tickets.
-
-    </td>
-
-</tr>
+    <tr>
+        <td colspan="11" x-text="textosTickets[idioma].sinTickets" style="padding:25px; text-align:center; color: #94a3b8;"></td>
+    </tr>
 
 @endif
 

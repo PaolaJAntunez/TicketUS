@@ -4,6 +4,7 @@ namespace App\Exports;
 
 use App\Models\Ticket;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
@@ -19,6 +20,14 @@ class TicketsExport implements FromCollection, WithHeadings
     public function collection()
     {
         $query = Ticket::with('category');
+
+        // Mismo scoping que TicketController::filteredTicketsQuery(): admin y
+        // agent ven todos los tickets, el resto solo los propios. Sin esto,
+        // cualquier usuario autenticado podía exportar los tickets de todos.
+        $user = Auth::user();
+        if (! in_array($user->role, ['admin', 'agent'], true)) {
+            $query->where('user_id', $user->id);
+        }
 
         // Buscar por título
         if ($this->request->filled('search')) {

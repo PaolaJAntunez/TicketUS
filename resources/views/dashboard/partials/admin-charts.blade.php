@@ -3,7 +3,7 @@
 <div style="margin:45px 0;">
 
     <h2 style="
-        color:#ffffff;
+        color:#1e293b;
         font-size:24px;
         font-weight:700;
         margin-bottom:25px;">
@@ -122,99 +122,8 @@
         </div>
 
     </div>
-
-    <!-- TABLA -->
-
-    <div style="
-        margin-top:35px;
-        background:#1e293b;
-        border:1px solid #334155;
-        border-radius:10px;
-        padding:25px;">
-
-        <h3 style="
-            color:#ffffff;
-            margin-bottom:20px;
-            font-size:18px;">
-
-            Últimos Tickets Registrados
-
-        </h3>
-
-        <div style="overflow-x:auto;">
-
-            <table style="
-                width:100%;
-                border-collapse:collapse;
-                color:white;">
-
-                <thead>
-
-                    <tr style="border-bottom:1px solid #334155;">
-
-                        <th style="padding:12px;text-align:left;">#</th>
-
-                        <th style="padding:12px;text-align:left;">Título</th>
-
-                        <th style="padding:12px;text-align:left;">Usuario</th>
-
-                        <th style="padding:12px;text-align:left;">Estado</th>
-
-                        <th style="padding:12px;text-align:left;">Categoría</th>
-
-                    </tr>
-
-                </thead>
-
-                <tbody>
-
-                    @forelse($recentTickets as $ticket)
-
-                        <tr style="border-bottom:1px solid #334155;">
-
-                            <td style="padding:12px;">
-                                {{ $ticket->id }}
-                            </td>
-
-                            <td style="padding:12px;">
-                                {{ $ticket->title }}
-                            </td>
-
-                            <td style="padding:12px;">
-                                {{ $ticket->user->name }}
-                            </td>
-
-                            <td style="padding:12px;">
-                                {{ ucfirst(str_replace('_',' ',$ticket->status)) }}
-                            </td>
-
-                            <td style="padding:12px;">
-                                {{ $ticket->category->name ?? '-' }}
-                            </td>
-
-                        </tr>
-
-                    @empty
-
-                        <tr>
-
-                            <td colspan="5"
-                                style="padding:20px;text-align:center;color:#94a3b8;">
-
-                                No hay tickets registrados.
-
-                            </td>
-
-                        </tr>
-
-                    @endforelse
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-    </div>
+    {{-- La tabla "Últimos Tickets Registrados" que vivía acá se consolidó en
+         dashboard.partials.quick-lists (Últimos Creados / Últimos Resueltos),
+         compartida entre los tres roles en vez de duplicada solo para admin. --}}
 
 </div>
