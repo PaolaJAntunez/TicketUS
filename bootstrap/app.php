@@ -16,6 +16,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
             'manage-users' => \App\Http\Middleware\EnsureCanManageUsers::class,
         ]);
+
+        // Railway termina TLS en su proxy de borde (dirección dinámica),
+        // así que hay que confiar en todos los proxies para que Laravel
+        // detecte el esquema HTTPS real vía X-Forwarded-Proto.
+        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // "api/*" siempre responde JSON; fuera de ahí, se respeta lo que el
