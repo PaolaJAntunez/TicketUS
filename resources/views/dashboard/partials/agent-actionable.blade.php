@@ -1,5 +1,5 @@
 <!-- ACCIONABLE PARA EL AGENTE: mis asignados (con vencidos) + próximos a vencer -->
-<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:24px; margin-bottom:32px;">
+<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr)); gap:24px; margin-bottom:32px;">
 
     <div style="background:#1e293b; border:1px solid {{ $assignedOverdueCount > 0 ? '#7f1d1d' : '#334155' }}; border-radius:8px; padding:24px;">
         <div style="display:flex; justify-content:space-between; margin-bottom:12px;">

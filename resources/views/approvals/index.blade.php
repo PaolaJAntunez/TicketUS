@@ -19,6 +19,13 @@
                     @foreach($errors->all() as $error)
                         <p style="margin: 0;">{{ $error }}</p>
                     @endforeach
+                    @if(session('failed_ticket_id'))
+                        <p style="margin: 8px 0 0 0;">
+                            <a href="{{ route('tickets.show', session('failed_ticket_id')) }}" style="color: #991b1b; font-weight: 600; text-decoration: underline;">
+                                Ver el ticket actual &rarr;
+                            </a>
+                        </p>
+                    @endif
                 </div>
             @endif
 

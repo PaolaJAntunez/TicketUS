@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Notifications\ApprovalRequestedNotification;
 use App\Notifications\TicketRejectedNotification;
 use App\Notifications\TicketStatusUpdatedNotification;
+use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -48,11 +49,11 @@ class TicketApprovalService
                 ->where('approval_level_id', $nextLevel->id)
                 ->first();
 
-            $nextApproval?->effectiveApprover()?->notify(new ApprovalRequestedNotification($ticket, $nextLevel));
+            SafeNotifier::send($nextApproval?->effectiveApprover(), new ApprovalRequestedNotification($ticket, $nextLevel));
         } else {
             $oldStatus = $ticket->status;
             $ticket->update(['status' => 'open']);
-            $ticket->user->notify(new TicketStatusUpdatedNotification($ticket, $oldStatus, $ticket->status));
+            SafeNotifier::send($ticket->user, new TicketStatusUpdatedNotification($ticket, $oldStatus, $ticket->status));
         }
 
         return $approval->refresh();
@@ -73,14 +74,14 @@ class TicketApprovalService
 
         TicketActivityLog::record($ticket, $actor, 'rejected', $comments);
 
-        $ticket->user->notify(new TicketRejectedNotification($ticket, $comments));
+        SafeNotifier::send($ticket->user, new TicketRejectedNotification($ticket, $comments));
 
         return $approval->refresh();
     }
 
     public function reopen(Ticket $ticket, User $actor, string $reason): Ticket
     {
-        if (! in_array($ticket->status, ['rejected', 'resolved', 'closed', 'cancelled'], true)) {
+        if (! in_array($ticket->status, TicketStatusService::TERMINAL_STATES, true)) {
             throw ValidationException::withMessages([
                 'reason' => 'Solo se puede reabrir un ticket rechazado, resuelto, cerrado o cancelado.',
             ]);
@@ -95,7 +96,7 @@ class TicketApprovalService
 
         TicketActivityLog::record($ticket, $actor, 'reopened', $reason);
 
-        $ticket->user->notify(new TicketStatusUpdatedNotification($ticket, $oldStatus, $ticket->status));
+        SafeNotifier::send($ticket->user, new TicketStatusUpdatedNotification($ticket, $oldStatus, $ticket->status));
 
         return $ticket->refresh();
     }
@@ -114,7 +115,7 @@ class TicketApprovalService
 
             if ($ticket->status !== 'pending_approval') {
                 throw ValidationException::withMessages([
-                    'ticket' => 'Este ticket ya no está en proceso de aprobación (estado actual: '.$ticket->status.').',
+                    'ticket' => 'Este ticket ya no requiere tu aprobación: alguien más ya lo resolvió, o cambió de estado por otro camino (estado actual: '.TicketStatusService::label($ticket->status).').',
                 ]);
             }
 
@@ -260,7 +261,7 @@ class TicketApprovalService
 
         TicketActivityLog::record($ticket, $actor, 'approval_reassigned', "Aprobador ad-hoc asignado: {$newApprover->name}.");
 
-        $newApprover->notify(new ApprovalRequestedNotification($ticket));
+        SafeNotifier::send($newApprover, new ApprovalRequestedNotification($ticket));
 
         return $approval;
     }
@@ -294,7 +295,7 @@ class TicketApprovalService
 
         TicketActivityLog::record($ticket, $actor, 'rejected', $comments);
 
-        $ticket->user->notify(new TicketRejectedNotification($ticket, $comments));
+        SafeNotifier::send($ticket->user, new TicketRejectedNotification($ticket, $comments));
 
         return $approval->refresh();
     }
@@ -311,7 +312,14 @@ class TicketApprovalService
      */
     public function sendForApproval(Ticket $ticket, User $actor, ?User $adhocApprover = null): Ticket
     {
-        return DB::transaction(function () use ($ticket, $actor, $adhocApprover) {
+        // El aviso se dispara DESPUÉS de que la transacción cierre (ver abajo):
+        // un fallo de correo (Postmark caído, timeout, etc.) no debe revertir
+        // la creación de la aprobación ni el cambio de estado del ticket.
+        $notifiable = null;
+        $notification = null;
+        /** @var ?Notification $notification */
+
+        $result = DB::transaction(function () use ($ticket, $actor, $adhocApprover, &$notifiable, &$notification) {
             $ticket->refresh();
 
             if ($ticket->approvals()->exists()) {
@@ -342,7 +350,8 @@ class TicketApprovalService
                 }
 
                 $firstLevel = $levels->first();
-                $firstLevel->approver?->notify(new ApprovalRequestedNotification($ticket, $firstLevel));
+                $notifiable = $firstLevel->approver;
+                $notification = new ApprovalRequestedNotification($ticket, $firstLevel);
 
                 $description = "Enviado al flujo \"{$category->approvalFlow->name}\".";
             } else {
@@ -365,7 +374,8 @@ class TicketApprovalService
                     'status' => 'pending',
                 ]);
 
-                $adhocApprover->notify(new ApprovalRequestedNotification($ticket));
+                $notifiable = $adhocApprover;
+                $notification = new ApprovalRequestedNotification($ticket);
 
                 $description = "Enviado a aprobación ad-hoc: {$adhocApprover->name}.";
             }
@@ -376,6 +386,10 @@ class TicketApprovalService
 
             return $ticket->refresh();
         });
+
+        SafeNotifier::send($notifiable, $notification);
+
+        return $result;
     }
 
     /**
@@ -386,6 +400,14 @@ class TicketApprovalService
     protected function guardedPendingAdhocApproval(Ticket $ticket, User $actor): TicketApproval
     {
         return DB::transaction(function () use ($ticket, $actor) {
+            $ticket->refresh();
+
+            if (in_array($ticket->status, TicketStatusService::TERMINAL_STATES, true)) {
+                throw ValidationException::withMessages([
+                    'ticket' => 'Este ticket ya no puede aprobarse ni rechazarse: ya está '.TicketStatusService::label($ticket->status).'.',
+                ]);
+            }
+
             if ($actor->id === $ticket->user_id) {
                 throw ValidationException::withMessages([
                     'actor' => 'El creador del ticket no puede aprobar ni rechazar su propio ticket.',

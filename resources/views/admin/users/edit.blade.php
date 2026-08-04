@@ -50,13 +50,13 @@
                             </select>
                         </div>
 
-                        <div style="display: flex; justify-content: flex-end; gap: 12px;">
+                        <div style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px;">
                             <a href="{{ route('admin.users.index') }}"
-                               style="padding: 10px 18px; background-color: #e5e7eb; color: #374151; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 500;">
+                               style="padding: 12px 20px; background-color: #e5e7eb; color: #374151; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 500;">
                                 Cancelar
                             </a>
                             <button type="submit"
-                                    style="background-color: #1e3a5f; color: #ffffff; padding: 10px 18px; border-radius: 6px; border: none; cursor: pointer; font-size: 14px; font-weight: 500;">
+                                    style="background-color: #1e3a5f; color: #ffffff; padding: 12px 20px; border-radius: 6px; border: none; cursor: pointer; font-size: 14px; font-weight: 500;">
                                 Guardar
                             </button>
                         </div>

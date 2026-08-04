@@ -5,6 +5,13 @@
         </h2>
     </x-slot>
 
+    <style>
+        .form-grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+        @media (max-width: 640px) {
+            .form-grid-2col { grid-template-columns: 1fr; }
+        }
+    </style>
+
     <div style="padding: 32px 0;">
         <div style="max-width: 640px; margin: 0 auto; padding: 0 24px;">
 
@@ -39,7 +46,7 @@
                                    style="width: 100%; border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px; box-sizing: border-box;">
                         </div>
 
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                        <div class="form-grid-2col">
                             <div>
                                 <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 4px;">Contraseña</label>
                                 <input type="password" name="password" required
@@ -53,7 +60,7 @@
                             </div>
                         </div>
 
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                        <div class="form-grid-2col">
                             <div>
                                 <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 4px;">Rol</label>
                                 <select name="role" required
@@ -74,7 +81,7 @@
                             </div>
                         </div>
 
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+                        <div class="form-grid-2col" style="margin-bottom: 24px;">
                             <div>
                                 <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 4px;">Cargo / Puesto</label>
                                 <input type="text" name="position" value="{{ old('position') }}" required placeholder="Ej. Analista de Soporte"
@@ -92,13 +99,13 @@
                             </div>
                         </div>
 
-                        <div style="display: flex; justify-content: flex-end; gap: 12px;">
+                        <div style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px;">
                             <a href="{{ route('admin.users.index') }}"
-                               style="padding: 10px 18px; background-color: #e5e7eb; color: #374151; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 500;">
+                               style="padding: 12px 20px; background-color: #e5e7eb; color: #374151; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 500;">
                                 Cancelar
                             </a>
                             <button type="submit"
-                                    style="background-color: #1e3a5f; color: #ffffff; padding: 10px 18px; border-radius: 6px; border: none; cursor: pointer; font-size: 14px; font-weight: 500;">
+                                    style="background-color: #1e3a5f; color: #ffffff; padding: 12px 20px; border-radius: 6px; border: none; cursor: pointer; font-size: 14px; font-weight: 500;">
                                 Crear usuario
                             </button>
                         </div>

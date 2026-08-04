@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TicketAttachmentController;
@@ -51,6 +52,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/feedback', function () { return view('feedback'); })->name('feedback');
     Route::get('/settings', function () { return view('settings'); })->name('settings');
     Route::get('/faqs', function () { return view('faqs'); })->name('faqs');
+
+    // Bandeja de notificaciones (campana del navbar): polling + dropdown.
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
 });
 
 // --- TICKETS ---

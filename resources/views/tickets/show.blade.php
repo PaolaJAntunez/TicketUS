@@ -12,8 +12,32 @@
         .ticket-col-main { flex: 1; min-width: 0; }
 
         @media (max-width: 960px) {
-            .ticket-3col { flex-direction: column; }
+            /* align-items:flex-start (arriba) es para la fila de escritorio
+               (no estirar columnas de distinta altura); en columna ese mismo
+               align-items pasa a controlar el eje horizontal, así que sin
+               "stretch" cada hijo se dimensiona por su contenido en vez de
+               ocupar el ancho completo — eso es lo que causaba el overflow
+               horizontal (.ticket-col-main renderizando ~650px en un
+               viewport de 375px). */
+            .ticket-3col { flex-direction: column; align-items: stretch; }
             .ticket-col-left, .ticket-col-right { width: 100%; }
+
+            /* En escritorio el orden natural del DOM ya es
+               izquierda(relacionados)/centro(principal)/derecha(propiedades).
+               En móvil se reordena visualmente con flex `order` (sin tocar el
+               DOM, para no arriesgar el scope de Alpine que vive en <main>):
+               principal primero, propiedades después, relacionados al final. */
+            .ticket-col-main { order: 1; }
+            .ticket-col-right { order: 2; }
+            .ticket-col-left { order: 3; }
+        }
+
+        /* Dropdown "Acciones": su grid de 3 columnas (680px) se sale de
+           cualquier pantalla angosta. Por debajo de 640px colapsa a 1
+           columna; el ancho del panel ya se limita con min() en el propio
+           componente (ver width="w-[min(680px,92vw)]" abajo). */
+        @media (max-width: 640px) {
+            .ticket-actions-grid { grid-template-columns: 1fr !important; }
         }
     </style>
 
@@ -157,7 +181,7 @@
                                     <i class="ti ti-edit"></i> Editar
                                 </a>
 
-                                <x-dropdown align="left" width="w-64">
+                                <x-dropdown align="left" width="w-56">
                                     <x-slot name="trigger">
                                         <button type="button" style="display: inline-flex; align-items: center; gap: 6px; background-color: #ffffff; color: #374151; border: 1px solid #cbd5e1; padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer;">
                                             <i class="ti ti-user-plus"></i> Asignar
@@ -191,14 +215,14 @@
                                     $actionItemStyle = 'display:flex; align-items:center; gap:8px; width:100%; text-align:left; padding:8px 10px; margin:2px 0; font-size:13px; color:#374151; background:none; border:none; border-radius:6px; cursor:pointer;';
                                     $actionHoverAttrs = 'onmouseover="this.style.backgroundColor=\'#f1f5f9\'" onmouseout="this.style.removeProperty(\'background-color\')"';
                                 @endphp
-                                <x-dropdown align="left" width="w-[680px]">
+                                <x-dropdown align="left" width="w-[min(680px,76vw)]">
                                     <x-slot name="trigger">
                                         <button type="button" style="display: inline-flex; align-items: center; gap: 6px; background-color: #ffffff; color: #374151; border: 1px solid #cbd5e1; padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer;">
                                             Acciones <i class="ti ti-chevron-down" style="font-size: 12px;"></i>
                                         </button>
                                     </x-slot>
                                     <x-slot name="content">
-                                        <div style="padding: 16px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px 20px;">
+                                        <div class="ticket-actions-grid" style="padding: 16px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px 20px;">
                                             {{-- COLUMNA 1: Gestión del ticket --}}
                                             <div>
                                                 <p style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .5px; margin: 4px 0 8px 0;">Gestión del ticket</p>
@@ -544,7 +568,7 @@
                     @php
                         $modalOverlayWrap = 'position: fixed; inset: 0; z-index: 60;';
                         $modalOverlayFlex = 'width: 100%; height: 100%; background-color: rgba(15,23,42,0.6); display: flex; align-items: center; justify-content: center; padding: 24px; box-sizing: border-box;';
-                        $modalCard = 'background-color: #ffffff; border-radius: 10px; max-width: 480px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.25);';
+                        $modalCard = 'background-color: #ffffff; border-radius: 10px; max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.25);';
                         $modalHeader = 'padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;';
                         $modalTitle = 'margin: 0; font-size: 15px; font-weight: 700; color: #1e293b;';
                         $modalClose = 'background: none; border: none; cursor: pointer; color: #64748b; font-size: 20px; line-height: 1; padding: 0;';

@@ -115,4 +115,16 @@ return [
         'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Notification Email
+    |--------------------------------------------------------------------------
+    |
+    | Dirección fija que recibe copia de cada ticket nuevo creado, además de
+    | los usuarios con rol admin (ver TicketController::store()).
+    |
+    */
+
+    'admin_notification_email' => env('ADMIN_NOTIFICATION_EMAIL'),
+
 ];

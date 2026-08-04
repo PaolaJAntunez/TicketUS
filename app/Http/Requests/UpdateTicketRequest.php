@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Services\TicketStatusService;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
@@ -46,9 +47,36 @@ class UpdateTicketRequest extends FormRequest
 
             // Regla #4: un ticket ya en un estado final solo puede salir de ahí mediante
             // la acción explícita de reapertura (tickets.reopen), no por esta edición genérica.
-            $terminalStates = ['rejected', 'resolved', 'closed', 'cancelled'];
-            if (in_array($ticket->status, $terminalStates, true) && $this->input('status') !== $ticket->status) {
+            $terminalStates = TicketStatusService::TERMINAL_STATES;
+            $statusChanging = $this->input('status') !== $ticket->status;
+
+            if (in_array($ticket->status, $terminalStates, true) && $statusChanging) {
                 $validator->errors()->add('status', 'Este ticket está en un estado final. Usa la opción de reapertura para reactivarlo.');
+            }
+
+            // Mientras el ticket está en proceso de aprobación, ni el estado ni el
+            // agente asignado pueden tocarse desde esta edición genérica: debe
+            // resolverse desde la bandeja de Aprobaciones, o cancelarse
+            // explícitamente (tickets.cancel). Evita el bypass silencioso que
+            // dejaba ticket_approvals huérfanos (ver auditoría, hallazgo #1).
+            if ($ticket->status === 'pending_approval' && ($statusChanging || $assignedToChanged)) {
+                $validator->errors()->add('status', 'Este ticket está en proceso de aprobación. Resuélvelo desde la bandeja de Aprobaciones, o cancélalo, antes de editarlo.');
+            }
+
+            // Cualquier otro cambio de estado debe ser una transición "simple"
+            // -- la misma fuente de verdad que usan el Kanban y el selector
+            // rápido. Las transiciones guardadas (resuelto, en espera, envío a
+            // aprobación, cancelado) requieren su acción dedicada porque piden
+            // datos que este formulario no recoge (texto de resolución, motivo,
+            // aprobador, etc.). Se exime cuando cambia el agente asignado: ese
+            // caso siempre fuerza status="assigned" más abajo, sin importar lo
+            // que venga en este campo.
+            if ($statusChanging
+                && ! $assignedToChanged
+                && ! in_array($ticket->status, $terminalStates, true)
+                && $ticket->status !== 'pending_approval'
+                && ! app(TicketStatusService::class)->isSimple($ticket->status, $this->input('status'))) {
+                $validator->errors()->add('status', 'Esta transición de estado no está permitida desde este formulario. Usa la acción correspondiente (Resolución, En espera, Enviar a aprobación, Cancelar, Reasignar, etc.).');
             }
 
             // Regla #7: un ticket no puede marcarse "resuelto" sin agente asignado.

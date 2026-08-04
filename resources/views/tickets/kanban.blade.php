@@ -275,6 +275,7 @@
                 display: flex;
                 gap: 16px;
                 overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
                 padding-bottom: 12px;
             }
             .kanban-column {
@@ -554,7 +555,7 @@
         {{-- Modal: motivo obligatorio al soltar en "En Espera" --}}
         <div x-show="holdModalOpen" x-cloak style="position: fixed; inset: 0; z-index: 70;">
             <div style="width:100%; height:100%; background-color:rgba(15,23,42,0.6); display:flex; align-items:center; justify-content:center; padding:24px; box-sizing:border-box;" @click.self="cancelPendingMove()">
-                <div class="ts-modal-box" style="border-radius:10px; max-width:460px; width:100%; box-shadow:0 20px 40px rgba(0,0,0,.25);">
+                <div class="ts-modal-box" style="border-radius:10px; max-width:460px; width:100%; max-height:90vh; overflow-y:auto; box-shadow:0 20px 40px rgba(0,0,0,.25);">
                     <div class="ts-modal-header" style="padding:16px 20px; display:flex; justify-content:space-between; align-items:center;">
                         <h3 class="ts-modal-title" style="margin:0; font-size:15px; font-weight:700;">Poner en espera</h3>
                         <button type="button" @click="cancelPendingMove()" class="ts-modal-close" style="background:none; border:none; cursor:pointer; font-size:20px; line-height:1;">&times;</button>
@@ -579,7 +580,7 @@
         {{-- Modal: texto de resolución obligatorio al soltar en "Resuelto" --}}
         <div x-show="resolutionModalOpen" x-cloak style="position: fixed; inset: 0; z-index: 70;">
             <div style="width:100%; height:100%; background-color:rgba(15,23,42,0.6); display:flex; align-items:center; justify-content:center; padding:24px; box-sizing:border-box;" @click.self="cancelPendingMove()">
-                <div class="ts-modal-box" style="border-radius:10px; max-width:460px; width:100%; box-shadow:0 20px 40px rgba(0,0,0,.25);">
+                <div class="ts-modal-box" style="border-radius:10px; max-width:460px; width:100%; max-height:90vh; overflow-y:auto; box-shadow:0 20px 40px rgba(0,0,0,.25);">
                     <div class="ts-modal-header" style="padding:16px 20px; display:flex; justify-content:space-between; align-items:center;">
                         <h3 class="ts-modal-title" style="margin:0; font-size:15px; font-weight:700;">Introducir resolución</h3>
                         <button type="button" @click="cancelPendingMove()" class="ts-modal-close" style="background:none; border:none; cursor:pointer; font-size:20px; line-height:1;">&times;</button>

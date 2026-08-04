@@ -151,14 +151,78 @@ x-bind:style="darkMode ? 'background-color: #0f172a; border-bottom: 1px solid #3
         html.dark .cmdk-result mark.cmdk-highlight { background-color: #a16207 !important; color: #fef9c3 !important; }
     </style>
 
-    <div style="max-width: 1280px; margin: 0 auto; padding: 0 24px;">
+    {{-- Responsive: el navbar está armado con estilos inline (no clases
+         Tailwind) porque así ya estaba antes de este cambio, así que el
+         colapso a hamburguesa se controla con las mismas piezas (clases +
+         @media) que ya usa este archivo para el command palette y el modo
+         oscuro, en vez de reescribir todo el layout a utilities. Breakpoint
+         768px = md de Tailwind por defecto. --}}
+    <style>
+        .ticketus-hamburger { display: none; }
+        .ticketus-nav-mobile-panel { display: none; padding: 8px 24px 16px; }
+
+        @media (max-width: 767px) {
+            .ticketus-nav-container { padding-left: 16px !important; padding-right: 16px !important; }
+            .ticketus-nav-links { display: none !important; }
+            /* Ojo: no se oculta .ticketus-nav-actions-desktop completo — el
+               catálogo y el buscador viven en el MISMO div x-data que sus
+               modales, y display:none en un ancestro también oculta al hijo
+               aunque el modal use position:fixed. Se ocultan solo los
+               botones disparadores; el panel móvil los activa por id. */
+            #ticketus-catalog-trigger, #ticketus-search-trigger { display: none !important; }
+            .ticketus-role-badge { display: none !important; }
+            .ticketus-user-name { display: none !important; }
+            .ticketus-hamburger { display: inline-flex !important; }
+
+            .ticketus-nav-mobile-panel { padding-left: 16px; padding-right: 16px; }
+            .ticketus-nav-mobile-panel.is-open { display: block; }
+
+            .ticketus-nav-mobile-link {
+                display: block;
+                padding: 12px 10px;
+                color: #ffffff;
+                text-decoration: none;
+                font-size: 15px;
+                font-weight: 500;
+                border-radius: 6px;
+            }
+            .ticketus-nav-mobile-link.is-active {
+                font-weight: 700;
+                background-color: rgba(255,255,255,0.18);
+            }
+
+            .ticketus-nav-mobile-divider {
+                border-top: 1px solid rgba(255,255,255,0.2);
+                margin: 8px 0;
+            }
+
+            .ticketus-nav-mobile-action {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                width: 100%;
+                text-align: left;
+                background: rgba(255,255,255,0.08);
+                border: none;
+                color: #ffffff;
+                padding: 12px 10px;
+                border-radius: 6px;
+                font-size: 15px;
+                font-weight: 600;
+                cursor: pointer;
+                margin-top: 6px;
+            }
+        }
+    </style>
+
+    <div class="ticketus-nav-container" style="max-width: 1280px; margin: 0 auto; padding: 0 24px;">
         <div style="display: flex; justify-content: space-between; align-items: center; height: 64px;">
             <div style="display: flex; align-items: center;">
                 <a href="{{ route('dashboard') }}" style="color: #ffffff; font-size: 22px; font-weight: 700; letter-spacing: 0.5px; text-decoration: none; margin-right: 40px;">
                     TicketUS
                 </a>
 
-                <div style="display: flex; gap: 4px;">
+                <div class="ticketus-nav-links" style="display: flex; gap: 4px;">
                     <a href="{{ route('dashboard') }}"
                        x-text="textosNav[idioma].dashboard"
                        style="color: #ffffff; text-decoration: none; padding: 10px 14px; border-radius: 4px; font-size: 14px; font-weight: {{ request()->routeIs('dashboard') ? '700' : '500' }}; {{ request()->routeIs('dashboard') ? 'background-color: rgba(255,255,255,0.18); box-shadow: inset 0 -2px 0 #2563eb;' : '' }}">
@@ -188,6 +252,7 @@ x-bind:style="darkMode ? 'background-color: #0f172a; border-bottom: 1px solid #3
             </div>
 
             <div style="display: flex; align-items: center; gap: 10px;">
+            <div class="ticketus-nav-actions-desktop" style="display: flex; align-items: center; gap: 10px;">
                 @if($catalogCategories->isNotEmpty())
                     <div x-data="{
                             showCatalog: false,
@@ -212,7 +277,7 @@ x-bind:style="darkMode ? 'background-color: #0f172a; border-bottom: 1px solid #3
                             }
                          }"
                          @keydown.escape.window="showCatalog = false">
-                        <button type="button" @click="showCatalog = true; $nextTick(() => $refs.catalogSearchInput.focus())"
+                        <button type="button" id="ticketus-catalog-trigger" @click="showCatalog = true; $nextTick(() => $refs.catalogSearchInput.focus())"
                                 x-text="textosNav[idioma].nuevaSolicitud"
                                 style="display: inline-flex; align-items: center; gap: 6px; background-color: #2563eb; color: #ffffff; border: none; padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer;">
                         </button>
@@ -367,7 +432,7 @@ x-bind:style="darkMode ? 'background-color: #0f172a; border-bottom: 1px solid #3
                      @keydown.window="if (($event.ctrlKey || $event.metaKey) && $event.key.toLowerCase() === 'k') { $event.preventDefault(); openSearch(); }"
                      @keydown.escape.window="closeSearch()">
 
-                    <button type="button" @click="openSearch()"
+                    <button type="button" id="ticketus-search-trigger" @click="openSearch()"
                             title="Buscar tickets (Ctrl+K)"
                             style="display: inline-flex; align-items: center; gap: 6px; background: transparent; border: 1px solid rgba(255,255,255,0.35); color: #ffffff; padding: 7px 12px; border-radius: 6px; font-size: 13px; cursor: pointer;">
                         <i class="ti ti-search"></i>
@@ -432,19 +497,22 @@ x-bind:style="darkMode ? 'background-color: #0f172a; border-bottom: 1px solid #3
                         </div>
                     </div>
                 </div>
+            </div>
+
+                <x-notification-bell />
 
                 @php
                     $roleLabels = ['admin' => 'Admin', 'agent' => 'Agente', 'user' => 'Usuario'];
                     $roleLabel = $roleLabels[Auth::user()->role] ?? ucfirst(Auth::user()->role);
                 @endphp
-                <span style="background-color: rgba(255,255,255,0.15); color: #ffffff; border: 1px solid rgba(255,255,255,0.4); padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                <span class="ticketus-role-badge" style="background-color: rgba(255,255,255,0.15); color: #ffffff; border: 1px solid rgba(255,255,255,0.4); padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
                     {{ $roleLabel }}
                 </span>
 
                 <x-dropdown align="right" width="56">
                     <x-slot name="trigger">
                         <button type="button" style="display: flex; align-items: center; gap: 6px; background: transparent; border: none; color: #ffffff; font-size: 14px; font-weight: 500; cursor: pointer; padding: 8px 12px;">
-                            <span>{{ Auth::user()->name }}</span>
+                            <span class="ticketus-user-name">{{ Auth::user()->name }}</span>
                             <svg style="width: 16px; height: 16px; fill: currentColor;" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                             </svg>
@@ -490,7 +558,46 @@ x-bind:style="darkMode ? 'background-color: #0f172a; border-bottom: 1px solid #3
                         </form>
                     </x-slot>
                 </x-dropdown>
+
+                <button type="button" class="ticketus-hamburger" @click="open = ! open"
+                        :aria-expanded="open.toString()" aria-label="Abrir menú"
+                        style="display: none; align-items: center; justify-content: center; background: transparent; border: 1px solid rgba(255,255,255,0.35); color: #ffffff; width: 36px; height: 36px; border-radius: 6px; cursor: pointer;">
+                    <i class="ti" :class="open ? 'ti-x' : 'ti-menu-2'" style="font-size: 18px;"></i>
+                </button>
             </div>
+        </div>
+
+        {{-- Panel móvil: aparece debajo del navbar (empuja el contenido, no
+             es overlay) cuando se toca la hamburguesa. Los links navegan
+             normal; "Nueva Solicitud" y "Buscar" reusan los triggers de
+             escritorio (arriba, ocultos por CSS en móvil) vía su id, para no
+             duplicar el x-data del catálogo ni del command palette. --}}
+        <div class="ticketus-nav-mobile-panel" :class="open ? 'is-open' : ''">
+            <a href="{{ route('dashboard') }}" x-text="textosNav[idioma].dashboard"
+               class="ticketus-nav-mobile-link {{ request()->routeIs('dashboard') ? 'is-active' : '' }}"></a>
+            <a href="{{ route('tickets.index') }}" x-text="textosNav[idioma].tickets"
+               class="ticketus-nav-mobile-link {{ request()->routeIs('tickets.*') ? 'is-active' : '' }}"></a>
+            <a href="{{ route('approvals.index') }}" x-text="textosNav[idioma].aprobaciones"
+               class="ticketus-nav-mobile-link {{ request()->routeIs('approvals.*') ? 'is-active' : '' }}"></a>
+            @if(Auth::user()->role === 'admin')
+                <a href="{{ route('admin.users.index') }}" x-text="textosNav[idioma].administracion"
+                   class="ticketus-nav-mobile-link {{ request()->routeIs('admin.*') ? 'is-active' : '' }}"></a>
+            @endif
+            <a href="{{ route('faqs') }}" x-text="textosNav[idioma].faqs"
+               class="ticketus-nav-mobile-link {{ request()->routeIs('faqs') ? 'is-active' : '' }}"></a>
+
+            <div class="ticketus-nav-mobile-divider"></div>
+
+            <button type="button" class="ticketus-nav-mobile-action"
+                    @click="open = false; document.getElementById('ticketus-catalog-trigger')?.click();">
+                <i class="ti ti-plus"></i>
+                <span x-text="textosNav[idioma].nuevaSolicitud"></span>
+            </button>
+            <button type="button" class="ticketus-nav-mobile-action"
+                    @click="open = false; document.getElementById('ticketus-search-trigger')?.click();">
+                <i class="ti ti-search"></i>
+                <span>Buscar tickets (Ctrl+K)</span>
+            </button>
         </div>
     </div>
 </nav>

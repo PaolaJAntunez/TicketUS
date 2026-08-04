@@ -19,7 +19,7 @@ class TicketRejectedNotification extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['database', 'mail'];
     }
 
     public function toMail(object $notifiable): MailMessage
@@ -32,5 +32,17 @@ class TicketRejectedNotification extends Notification
             ->line('Motivo: '.($this->comments ?: 'Sin comentarios adicionales.'))
             ->action('Ver ticket', route('tickets.show', $this->ticket))
             ->line('Si tienes dudas, contacta al equipo de soporte.');
+    }
+
+    public function toArray(object $notifiable): array
+    {
+        return [
+            'type' => 'ticket_rejected',
+            'icon' => 'ti-x',
+            'title' => 'Ticket rechazado',
+            'message' => 'Tu ticket "'.$this->ticket->title.'" fue rechazado.'.($this->comments ? ' Motivo: '.$this->comments : ''),
+            'ticket_id' => $this->ticket->id,
+            'url' => route('tickets.show', $this->ticket),
+        ];
     }
 }

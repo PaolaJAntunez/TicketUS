@@ -10,12 +10,16 @@ use App\Models\TicketActivityLog;
 use App\Models\TicketApproval;
 use App\Models\User;
 use App\Notifications\ApprovalRequestedNotification;
+use App\Notifications\NewTicketNotifyAdminsNotification;
 use App\Notifications\TicketAssignedNotification;
 use App\Notifications\TicketCreatedNotification;
 use App\Notifications\TicketStatusUpdatedNotification;
+use App\Services\SafeNotifier;
+use App\Services\TicketAttachmentService;
 use App\Services\TicketStatusService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\Rule;
 
 class TicketController extends Controller
@@ -162,7 +166,7 @@ class TicketController extends Controller
         return view('tickets.create', compact('categories', 'selectedCategoryId', 'selectedSubcategoryId'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request, TicketAttachmentService $attachmentService)
     {
         $request->validate([
             'title'       => 'required|string|max:255',
@@ -173,6 +177,10 @@ class TicketController extends Controller
             // La subcategoría, si viene, debe pertenecer a la categoría elegida y estar activa.
             'subcategory_id' => ['nullable', Rule::exists('subcategories', 'id')->where('category_id', $request->input('category_id'))->where('is_active', true)],
             'priority'    => 'required|in:low,medium,high,urgent',
+            // Adjuntos opcionales al crear: misma validación por archivo que
+            // TicketAttachmentController (ver TicketAttachmentService::rules()).
+            'attachments'   => ['nullable', 'array'],
+            'attachments.*' => TicketAttachmentService::rules(required: false),
         ]);
 
         $category = Category::with(['approvalFlow.levels'])->find($request->category_id);
@@ -198,10 +206,37 @@ class TicketController extends Controller
             }
 
             $firstLevel = $levels->first();
-            $firstLevel->approver?->notify(new ApprovalRequestedNotification($ticket, $firstLevel));
+            SafeNotifier::send($firstLevel->approver, new ApprovalRequestedNotification($ticket, $firstLevel));
         }
 
-        $ticket->user->notify(new TicketCreatedNotification($ticket));
+        // Adjuntos opcionales cargados en el mismo formulario de creación:
+        // misma validación y mismo storage que TicketAttachmentController,
+        // vía TicketAttachmentService (ver arriba, `attachments.*`). El
+        // ticket ya existe en este punto, así que cada adjunto queda
+        // asociado al ticket_id correcto.
+        foreach ($request->file('attachments', []) as $file) {
+            $attachment = $attachmentService->store($ticket, $file, Auth::user());
+            TicketActivityLog::record($ticket, Auth::user(), 'attachment_added', $attachment->original_name);
+        }
+
+        SafeNotifier::send($ticket->user, new TicketCreatedNotification($ticket));
+
+        // Se notifica a los admins sin importar si el ticket nace "open" o
+        // "pending_approval": necesitan saber que existe para poder asignar
+        // agente en cuanto corresponda (después de aprobado, o antes según
+        // el flujo real de la categoría).
+        foreach (User::where('role', 'admin')->get() as $admin) {
+            SafeNotifier::send($admin, new NewTicketNotifyAdminsNotification($ticket));
+        }
+
+        // Copia fija adicional a ADMIN_NOTIFICATION_EMAIL en CADA creación,
+        // sin excepción (categoría, prioridad o flujo no aplican acá):
+        // reutiliza la misma Notification que ya reciben los admins, como
+        // notifiable "anónimo" de Laravel en vez de un User.
+        SafeNotifier::send(
+            Notification::route('mail', config('mail.admin_notification_email')),
+            new NewTicketNotifyAdminsNotification($ticket)
+        );
 
         return redirect()->route('tickets.index')->with('success', 'Ticket creado exitosamente.');
     }
@@ -243,7 +278,7 @@ class TicketController extends Controller
         return view('tickets.show', compact('ticket', 'agents', 'relatedTickets', 'approvalCandidates', 'allTags'));
     }
 
-    public function edit(Ticket $ticket)
+    public function edit(Ticket $ticket, TicketStatusService $statusService)
     {
         $this->authorize('update', $ticket);
 
@@ -261,7 +296,15 @@ class TicketController extends Controller
         // igual que en la config de flujos (admin.approval-flows), sin restringir por rol.
         $approvalCandidates = User::orderBy('name')->get();
 
-        return view('tickets.edit', compact('ticket', 'categories', 'agents', 'approvalCandidates'));
+        // El <select> de estado solo debe ofrecer transiciones "simples"
+        // (misma fuente de verdad que Kanban/selector rápido): las guardadas
+        // (resuelto, en espera, aprobación, cancelado) requieren su acción
+        // dedicada y este formulario no recoge esos datos adicionales.
+        $simpleStatusTargets = collect($statusService->validTargets($ticket))
+            ->where('requires_modal', null)
+            ->pluck('status');
+
+        return view('tickets.edit', compact('ticket', 'categories', 'agents', 'approvalCandidates', 'simpleStatusTargets'));
     }
 
     public function update(UpdateTicketRequest $request, Ticket $ticket)
@@ -294,11 +337,11 @@ class TicketController extends Controller
         $ticket->update($data);
 
         if ($oldStatus !== $ticket->status) {
-            $ticket->user->notify(new TicketStatusUpdatedNotification($ticket, $oldStatus, $ticket->status));
+            SafeNotifier::send($ticket->user, new TicketStatusUpdatedNotification($ticket, $oldStatus, $ticket->status));
         }
 
         if ($assignedChanged) {
-            $ticket->agent->notify(new TicketAssignedNotification($ticket));
+            SafeNotifier::send($ticket->agent, new TicketAssignedNotification($ticket));
 
             TicketActivityLog::record(
                 $ticket,
@@ -349,7 +392,7 @@ class TicketController extends Controller
 
         TicketActivityLog::record($ticket, $user, 'status_changed', "Movido de {$oldStatus} a {$newStatus}.");
 
-        $ticket->user->notify(new TicketStatusUpdatedNotification($ticket, $oldStatus, $newStatus));
+        SafeNotifier::send($ticket->user, new TicketStatusUpdatedNotification($ticket, $oldStatus, $newStatus));
 
         // Los targets se recalculan para el estado NUEVO: el selector rápido los
         // usa para encadenar otro cambio sin recargar (ver ticket-status-menu.blade.php).
@@ -394,7 +437,7 @@ class TicketController extends Controller
 
         TicketActivityLog::record($ticket, $user, 'on_hold', $comment);
 
-        $ticket->user->notify(new TicketStatusUpdatedNotification($ticket, $oldStatus, 'on_hold'));
+        SafeNotifier::send($ticket->user, new TicketStatusUpdatedNotification($ticket, $oldStatus, 'on_hold'));
 
         return response()->json([
             'status' => $ticket->status,
@@ -463,7 +506,7 @@ class TicketController extends Controller
 
         TicketActivityLog::record($ticket, Auth::user(), 'resolved', $request->input('resolution'));
 
-        $ticket->user->notify(new TicketStatusUpdatedNotification($ticket, $oldStatus, 'resolved'));
+        SafeNotifier::send($ticket->user, new TicketStatusUpdatedNotification($ticket, $oldStatus, 'resolved'));
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -497,7 +540,7 @@ class TicketController extends Controller
         TicketActivityLog::record($copy, Auth::user(), 'duplicated', "Copiado desde el ticket #{$ticket->id}.");
         TicketActivityLog::record($ticket, Auth::user(), 'duplicated', "Copiado como el ticket #{$copy->id}.");
 
-        $copy->user->notify(new TicketCreatedNotification($copy));
+        SafeNotifier::send($copy->user, new TicketCreatedNotification($copy));
 
         return redirect()->route('tickets.show', $copy)->with('success', "Ticket duplicado como #{$copy->id}.");
     }
@@ -530,7 +573,7 @@ class TicketController extends Controller
 
         TicketActivityLog::record($ticket, Auth::user(), 'cancelled', $request->input('reason'));
 
-        $ticket->user->notify(new TicketStatusUpdatedNotification($ticket, $oldStatus, 'cancelled'));
+        SafeNotifier::send($ticket->user, new TicketStatusUpdatedNotification($ticket, $oldStatus, 'cancelled'));
 
         if ($request->wantsJson()) {
             return response()->json([

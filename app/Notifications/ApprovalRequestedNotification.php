@@ -20,7 +20,7 @@ class ApprovalRequestedNotification extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['database', 'mail'];
     }
 
     public function toMail(object $notifiable): MailMessage
@@ -39,5 +39,17 @@ class ApprovalRequestedNotification extends Notification
             ->line('Solicitante: '.$this->ticket->user->name)
             ->action('Revisar aprobación', route('approvals.index'))
             ->line('Por favor revisa esta solicitud lo antes posible.');
+    }
+
+    public function toArray(object $notifiable): array
+    {
+        return [
+            'type' => 'approval_requested',
+            'icon' => 'ti-clipboard-check',
+            'title' => 'Aprobación requerida',
+            'message' => 'Se requiere tu aprobación para "'.$this->ticket->title.'".'.($this->level ? ' Nivel: '.$this->level->name.'.' : ''),
+            'ticket_id' => $this->ticket->id,
+            'url' => route('approvals.index'),
+        ];
     }
 }

@@ -425,7 +425,7 @@
         <div x-show="categoryModalOpen" x-cloak style="position: fixed; inset: 0; z-index: 70;">
             <div style="width: 100%; height: 100%; background-color: rgba(15,23,42,0.6); display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box;"
                  @click.self="categoryModalOpen = false">
-                <div class="catadmin-modal-panel" style="border-radius: 10px; max-width: 480px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.3);"
+                <div class="catadmin-modal-panel" style="border-radius: 10px; max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.3);"
                      @keydown.escape.window="categoryModalOpen = false">
                     <form @submit.prevent="submitCategory()">
                         <div style="padding: 20px 24px; border-bottom: 1px solid #e2e8f0;">
@@ -471,7 +471,7 @@
         <div x-show="subcategoryModalOpen" x-cloak style="position: fixed; inset: 0; z-index: 70;">
             <div style="width: 100%; height: 100%; background-color: rgba(15,23,42,0.6); display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box;"
                  @click.self="subcategoryModalOpen = false">
-                <div class="catadmin-modal-panel" style="border-radius: 10px; max-width: 420px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.3);"
+                <div class="catadmin-modal-panel" style="border-radius: 10px; max-width: 420px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.3);"
                      @keydown.escape.window="subcategoryModalOpen = false">
                     <form @submit.prevent="submitSubcategory()">
                         <div style="padding: 20px 24px; border-bottom: 1px solid #e2e8f0;">
@@ -504,7 +504,7 @@
         <div x-show="confirmOpen" x-cloak style="position: fixed; inset: 0; z-index: 80;">
             <div style="width: 100%; height: 100%; background-color: rgba(15,23,42,0.7); display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box;"
                  @click.self="confirmOpen = false">
-                <div class="catadmin-modal-panel" style="border-radius: 10px; max-width: 420px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.3); padding: 24px;"
+                <div class="catadmin-modal-panel" style="border-radius: 10px; max-width: 420px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.3); padding: 24px;"
                      @keydown.escape.window="confirmOpen = false">
                     <h2 class="catadmin-row-title" style="margin: 0 0 10px 0; font-size: 16px; font-weight: 700;" x-text="confirmTitle"></h2>
                     <p class="catadmin-meta" style="margin: 0 0 20px 0; font-size: 14px;" x-text="confirmMessage"></p>

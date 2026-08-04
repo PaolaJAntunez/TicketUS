@@ -17,7 +17,7 @@ class TicketAssignedNotification extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['database', 'mail'];
     }
 
     public function toMail(object $notifiable): MailMessage
@@ -30,5 +30,17 @@ class TicketAssignedNotification extends Notification
             ->line('Solicitante: '.$this->ticket->user->name)
             ->action('Ver ticket', route('tickets.show', $this->ticket))
             ->line('Por favor da seguimiento a este ticket lo antes posible.');
+    }
+
+    public function toArray(object $notifiable): array
+    {
+        return [
+            'type' => 'ticket_assigned',
+            'icon' => 'ti-user-check',
+            'title' => 'Ticket asignado',
+            'message' => 'Se te asignó el ticket "'.$this->ticket->title.'".',
+            'ticket_id' => $this->ticket->id,
+            'url' => route('tickets.show', $this->ticket),
+        ];
     }
 }

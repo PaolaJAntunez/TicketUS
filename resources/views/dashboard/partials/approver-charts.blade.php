@@ -1,5 +1,11 @@
 <!-- PANEL DE APROBACIONES -->
 
+<style>
+    @media (max-width: 767px) {
+        .ticketus-approver-charts-grid { grid-template-columns: 1fr !important; }
+    }
+</style>
+
 <div style="margin:45px 0;">
 
     <h2 style="
@@ -14,7 +20,7 @@
 
     <!-- PRIMERA FILA -->
 
-    <div style="
+    <div class="ticketus-approver-charts-grid" style="
         display:grid;
         grid-template-columns:1fr 1fr;
         gap:30px;

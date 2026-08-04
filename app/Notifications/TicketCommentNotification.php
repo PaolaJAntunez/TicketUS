@@ -7,6 +7,7 @@ use App\Models\TicketComment;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Str;
 
 class TicketCommentNotification extends Notification
 {
@@ -20,7 +21,7 @@ class TicketCommentNotification extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['database', 'mail'];
     }
 
     public function toMail(object $notifiable): MailMessage
@@ -33,5 +34,17 @@ class TicketCommentNotification extends Notification
             ->line('Comentario: '.$this->comment->comment)
             ->action('Ver ticket', route('tickets.show', $this->ticket))
             ->line('Te notificaremos cuando haya más novedades en tu ticket.');
+    }
+
+    public function toArray(object $notifiable): array
+    {
+        return [
+            'type' => 'ticket_comment',
+            'icon' => 'ti-message',
+            'title' => 'Nuevo comentario',
+            'message' => 'Nuevo comentario en "'.$this->ticket->title.'": '.Str::limit($this->comment->comment, 80),
+            'ticket_id' => $this->ticket->id,
+            'url' => route('tickets.show', $this->ticket),
+        ];
     }
 }

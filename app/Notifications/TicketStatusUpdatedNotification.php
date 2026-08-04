@@ -20,7 +20,7 @@ class TicketStatusUpdatedNotification extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['database', 'mail'];
     }
 
     public function toMail(object $notifiable): MailMessage
@@ -34,5 +34,17 @@ class TicketStatusUpdatedNotification extends Notification
             ->line('Nuevo estado: '.$this->newStatus)
             ->action('Ver ticket', route('tickets.show', $this->ticket))
             ->line('Te notificaremos cuando haya más novedades en tu ticket.');
+    }
+
+    public function toArray(object $notifiable): array
+    {
+        return [
+            'type' => 'ticket_status_updated',
+            'icon' => 'ti-refresh',
+            'title' => 'Actualización de estado',
+            'message' => 'Tu ticket "'.$this->ticket->title.'" pasó de '.$this->oldStatus.' a '.$this->newStatus.'.',
+            'ticket_id' => $this->ticket->id,
+            'url' => route('tickets.show', $this->ticket),
+        ];
     }
 }

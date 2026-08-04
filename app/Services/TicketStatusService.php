@@ -18,6 +18,14 @@ use App\Models\Ticket;
 class TicketStatusService
 {
     /**
+     * Estados finales: de acá solo se sale por Reapertura (TicketPolicy::reopen()).
+     * Única fuente de verdad para no repetir este array en cada sitio que
+     * necesita saber si un ticket ya "terminó" (edición, aprobaciones ad-hoc,
+     * bandeja de aprobaciones pendientes).
+     */
+    public const TERMINAL_STATES = ['rejected', 'resolved', 'closed', 'cancelled'];
+
+    /**
      * Transiciones "simples": sin dato adicional, aplican directo vía
      * TicketController::updateStatus() (Kanban + selector rápido).
      */
@@ -55,6 +63,28 @@ class TicketStatusService
         'pending_approval' => 'pending_approval',
         'cancelled' => 'cancelled',
     ];
+
+    /**
+     * Nombres legibles de cada estado, para mensajes al usuario (ej. errores
+     * de aprobación desactualizada: "estado actual: cancelado" en vez del
+     * valor crudo de la columna).
+     */
+    public const LABELS = [
+        'open' => 'abierto',
+        'assigned' => 'asignado',
+        'in_progress' => 'en progreso',
+        'on_hold' => 'en espera',
+        'pending_approval' => 'pendiente de aprobación',
+        'resolved' => 'resuelto',
+        'closed' => 'cerrado',
+        'rejected' => 'rechazado',
+        'cancelled' => 'cancelado',
+    ];
+
+    public static function label(string $status): string
+    {
+        return self::LABELS[$status] ?? $status;
+    }
 
     public function canTransition(string $from, string $to): bool
     {

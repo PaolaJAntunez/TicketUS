@@ -1,5 +1,5 @@
 <!-- TABLAS ADICIONALES: resolución promedio por categoría + top 5 categorías -->
-<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(420px,1fr)); gap:30px; margin-top:30px;">
+<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(min(420px,100%),1fr)); gap:30px; margin-top:30px;">
 
     <!-- Resolución promedio por categoría -->
     <div style="background:#1e293b; border:1px solid #334155; border-radius:10px; padding:25px;">
@@ -8,12 +8,13 @@
         @if($avgResolutionByCategory->isEmpty())
             <p x-text="textosDashboard[idioma].sinDatos" style="color:#94a3b8; margin:0;"></p>
         @else
+            <div style="overflow-x:auto;">
             <table style="width:100%; border-collapse:collapse; color:white;">
                 <thead>
                     <tr style="border-bottom:1px solid #334155;">
-                        <th style="text-align:left; padding:8px 4px; color:#94a3b8; font-size:11px; text-transform:uppercase;" x-text="textosDashboard[idioma].colCategoria"></th>
-                        <th style="text-align:right; padding:8px 4px; color:#94a3b8; font-size:11px; text-transform:uppercase;" x-text="textosDashboard[idioma].colPromedio"></th>
-                        <th style="text-align:right; padding:8px 4px; color:#94a3b8; font-size:11px; text-transform:uppercase;" x-text="textosDashboard[idioma].colResueltos"></th>
+                        <th style="text-align:left; padding:8px 4px; color:#94a3b8; font-size:11px; text-transform:uppercase; white-space:nowrap;" x-text="textosDashboard[idioma].colCategoria"></th>
+                        <th style="text-align:right; padding:8px 4px; color:#94a3b8; font-size:11px; text-transform:uppercase; white-space:nowrap;" x-text="textosDashboard[idioma].colPromedio"></th>
+                        <th style="text-align:right; padding:8px 4px; color:#94a3b8; font-size:11px; text-transform:uppercase; white-space:nowrap;" x-text="textosDashboard[idioma].colResueltos"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -26,6 +27,7 @@
                     @endforeach
                 </tbody>
             </table>
+            </div>
         @endif
     </div>
 
@@ -36,6 +38,7 @@
         @if($topCategories->isEmpty())
             <p x-text="textosDashboard[idioma].sinDatos" style="color:#94a3b8; margin:0;"></p>
         @else
+            <div style="overflow-x:auto;">
             <table style="width:100%; border-collapse:collapse; color:white;">
                 <tbody>
                     @foreach($topCategories as $i => $cat)
@@ -50,6 +53,7 @@
                     @endforeach
                 </tbody>
             </table>
+            </div>
         @endif
     </div>
 

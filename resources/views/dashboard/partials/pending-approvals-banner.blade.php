@@ -1,7 +1,7 @@
 @if(($myPendingApprovals ?? 0) > 0)
     <a href="{{ route('approvals.index') }}"
-       style="display: flex; justify-content: space-between; align-items: center; gap: 16px; background: #78350f; border: 1px solid #b45309; border-radius: 8px; padding: 16px 20px; margin-bottom: 24px; text-decoration: none;">
-        <div style="display: flex; align-items: center; gap: 14px;">
+       style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px 16px; background: #78350f; border: 1px solid #b45309; border-radius: 8px; padding: 16px 20px; margin-bottom: 24px; text-decoration: none;">
+        <div style="display: flex; align-items: center; gap: 14px; min-width: 0;">
             <span style="background: #b45309; color: #fff; width: 36px; height: 36px; min-width: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px;">
                 {{ $myPendingApprovals }}
             </span>

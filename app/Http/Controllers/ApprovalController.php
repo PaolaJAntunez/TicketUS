@@ -39,7 +39,7 @@ class ApprovalController extends Controller
         try {
             $this->approvals->approve($ticket, $level, Auth::user(), $request->validated('comments'));
         } catch (ValidationException $e) {
-            return back()->withErrors($e->errors());
+            return back()->withErrors($e->errors())->with('failed_ticket_id', $ticket->id);
         }
 
         return redirect()->route('approvals.index')->with('success', 'Aprobación registrada correctamente.');
@@ -50,7 +50,7 @@ class ApprovalController extends Controller
         try {
             $this->approvals->reject($ticket, $level, Auth::user(), $request->validated('comments'));
         } catch (ValidationException $e) {
-            return back()->withErrors($e->errors());
+            return back()->withErrors($e->errors())->with('failed_ticket_id', $ticket->id);
         }
 
         return redirect()->route('approvals.index')->with('success', 'Ticket rechazado.');
@@ -100,7 +100,7 @@ class ApprovalController extends Controller
         try {
             $this->approvals->approveAdhoc($ticket, Auth::user(), $request->validated('comments'));
         } catch (ValidationException $e) {
-            return back()->withErrors($e->errors());
+            return back()->withErrors($e->errors())->with('failed_ticket_id', $ticket->id);
         }
 
         return redirect()->route('approvals.index')->with('success', 'Aprobación registrada correctamente.');
@@ -111,7 +111,7 @@ class ApprovalController extends Controller
         try {
             $this->approvals->rejectAdhoc($ticket, Auth::user(), $request->validated('comments'));
         } catch (ValidationException $e) {
-            return back()->withErrors($e->errors());
+            return back()->withErrors($e->errors())->with('failed_ticket_id', $ticket->id);
         }
 
         return redirect()->route('approvals.index')->with('success', 'Ticket rechazado.');

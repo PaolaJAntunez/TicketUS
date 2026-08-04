@@ -1,5 +1,11 @@
 <!-- PANEL DEL AGENTE -->
 
+<style>
+    @media (max-width: 767px) {
+        .ticketus-agent-charts-grid { grid-template-columns: 1fr !important; }
+    }
+</style>
+
 <div style="margin:45px 0;">
 
     <h2 style="
@@ -12,7 +18,7 @@
 
     </h2>
 
-    <div style="
+    <div class="ticketus-agent-charts-grid" style="
         display:grid;
         grid-template-columns:2fr 1fr;
         gap:30px;

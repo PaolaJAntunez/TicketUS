@@ -1,5 +1,5 @@
 <!-- LISTAS RÁPIDAS: últimos creados / últimos resueltos (todos los roles) -->
-<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(420px,1fr)); gap:30px; margin-top:30px;">
+<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(min(420px,100%),1fr)); gap:30px; margin-top:30px;">
 
     <div style="background:#1e293b; border:1px solid #334155; border-radius:10px; padding:25px;">
         <h3 x-text="textosDashboard[idioma].ultimosCreadosTitulo" style="color:#ffffff; margin-bottom:20px; font-size:18px;"></h3>

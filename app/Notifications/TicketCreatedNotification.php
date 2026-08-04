@@ -17,7 +17,7 @@ class TicketCreatedNotification extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['database', 'mail'];
     }
 
     public function toMail(object $notifiable): MailMessage
@@ -31,5 +31,17 @@ class TicketCreatedNotification extends Notification
             ->line('Estado: '.$this->ticket->status)
             ->action('Ver ticket', route('tickets.show', $this->ticket))
             ->line('Te notificaremos cuando haya novedades en tu ticket.');
+    }
+
+    public function toArray(object $notifiable): array
+    {
+        return [
+            'type' => 'ticket_created',
+            'icon' => 'ti-ticket',
+            'title' => 'Ticket creado',
+            'message' => 'Tu ticket "'.$this->ticket->title.'" fue creado correctamente.',
+            'ticket_id' => $this->ticket->id,
+            'url' => route('tickets.show', $this->ticket),
+        ];
     }
 }

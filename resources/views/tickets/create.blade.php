@@ -5,6 +5,13 @@
         </h2>
     </x-slot>
 
+    <style>
+        .form-grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+        @media (max-width: 640px) {
+            .form-grid-2col { grid-template-columns: 1fr; }
+        }
+    </style>
+
     <div style="padding: 32px 0;">
         <div style="max-width: 960px; margin: 0 auto; padding: 0 24px;">
             <div style="background-color: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden;">
@@ -24,7 +31,7 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('tickets.store') }}" method="POST">
+                    <form action="{{ route('tickets.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
 
                         <div style="margin-bottom: 16px;">
@@ -41,7 +48,7 @@
                                       placeholder="Detalla el problema lo más posible">{{ old('description') }}</textarea>
                         </div>
 
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                        <div class="form-grid-2col">
                             <div>
                                 <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 4px;">Categoría</label>
                                 <select name="category_id" id="category_id"
@@ -74,13 +81,20 @@
                             </select>
                         </div>
 
-                        <div style="display: flex; justify-content: flex-end; gap: 12px;">
+                        <div style="margin-bottom: 24px;">
+                            <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 4px;">Archivos adjuntos (opcional)</label>
+                            <input type="file" name="attachments[]" multiple
+                                   style="width: 100%; border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px; box-sizing: border-box;">
+                            <p style="font-size: 12px; color: #94a3b8; margin: 8px 0 0 0;">Máx. 10MB por archivo. Imágenes, PDF, Office, ZIP o TXT.</p>
+                        </div>
+
+                        <div style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px;">
                             <a href="{{ route('tickets.index') }}"
-                               style="padding: 10px 18px; background-color: #e5e7eb; color: #374151; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 500;">
+                               style="padding: 12px 20px; background-color: #e5e7eb; color: #374151; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 500;">
                                 Cancelar
                             </a>
                             <button type="submit"
-                                    style="background-color: #1e3a5f; color: #ffffff; padding: 10px 18px; border-radius: 6px; border: none; cursor: pointer; font-size: 14px; font-weight: 500;">
+                                    style="background-color: #1e3a5f; color: #ffffff; padding: 12px 20px; border-radius: 6px; border: none; cursor: pointer; font-size: 14px; font-weight: 500;">
                                 Crear Ticket
                             </button>
                         </div>

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\TicketStatusService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -88,6 +89,18 @@ class TicketApproval extends Model
             }))
             ->get()
             ->filter(function (self $approval) {
+                // El ticket puede haber salido del flujo de aprobación por otro
+                // camino (edición directa, cancelación) sin que esta fila se haya
+                // resuelto: si ya no tiene sentido actuar sobre ella, no debe
+                // aparecer como pendiente para nadie (huérfana para siempre si no).
+                if ($approval->approval_level_id !== null) {
+                    if ($approval->ticket->status !== 'pending_approval') {
+                        return false;
+                    }
+                } elseif (in_array($approval->ticket->status, TicketStatusService::TERMINAL_STATES, true)) {
+                    return false;
+                }
+
                 if (! $approval->approvalLevel) {
                     return true;
                 }

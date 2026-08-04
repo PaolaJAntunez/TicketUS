@@ -5,6 +5,13 @@
         </h2>
     </x-slot>
 
+    <style>
+        .form-grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+        @media (max-width: 640px) {
+            .form-grid-2col { grid-template-columns: 1fr; }
+        }
+    </style>
+
     <div style="padding: 32px 0;">
         <div style="max-width: 720px; margin: 0 auto; padding: 0 24px;">
             <div style="background-color: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden;">
@@ -39,19 +46,31 @@
                         @csrf
                         @method('PUT')
 
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                        <div class="form-grid-2col">
                             <div>
+                                @php
+                                    $statusLabels = [
+                                        'open' => 'Abierto',
+                                        'assigned' => 'Asignado',
+                                        'in_progress' => 'En Progreso',
+                                        'on_hold' => 'En Espera',
+                                        'pending_approval' => 'Pendiente de Aprobación',
+                                        'resolved' => 'Resuelto',
+                                        'closed' => 'Cerrado',
+                                        'rejected' => 'Rechazado',
+                                        'cancelled' => 'Cancelado',
+                                    ];
+                                @endphp
                                 <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 4px;">Estado</label>
                                 <select name="status" style="width: 100%; border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px; box-sizing: border-box;">
-                                    <option value="open" {{ $ticket->status == 'open' ? 'selected' : '' }}>Abierto</option>
-                                    <option value="assigned" {{ $ticket->status == 'assigned' ? 'selected' : '' }}>Asignado</option>
-                                    <option value="in_progress" {{ $ticket->status == 'in_progress' ? 'selected' : '' }}>En Progreso</option>
-                                    <option value="on_hold" {{ $ticket->status == 'on_hold' ? 'selected' : '' }}>En Espera</option>
-                                    <option value="pending_approval" {{ $ticket->status == 'pending_approval' ? 'selected' : '' }}>Pendiente de Aprobación</option>
-                                    <option value="resolved" {{ $ticket->status == 'resolved' ? 'selected' : '' }}>Resuelto</option>
-                                    <option value="closed" {{ $ticket->status == 'closed' ? 'selected' : '' }}>Cerrado</option>
-                                    <option value="rejected" {{ $ticket->status == 'rejected' ? 'selected' : '' }}>Rechazado</option>
-                                    <option value="cancelled" {{ $ticket->status == 'cancelled' ? 'selected' : '' }}>Cancelado</option>
+                                    {{-- El estado actual siempre aparece (para no tocarlo), más las
+                                         transiciones "simples" válidas desde acá. El resto (resolver, poner
+                                         en espera, enviar a aprobación, cancelar) tiene su propia acción
+                                         dedicada en el menú de detalle del ticket. --}}
+                                    <option value="{{ $ticket->status }}" selected>{{ $statusLabels[$ticket->status] ?? ucfirst($ticket->status) }}</option>
+                                    @foreach($simpleStatusTargets as $target)
+                                        <option value="{{ $target }}">{{ $statusLabels[$target] ?? ucfirst($target) }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                             <div>
@@ -89,13 +108,13 @@
                             @endif
                         </div>
 
-                        <div style="display: flex; justify-content: flex-end; gap: 12px;">
+                        <div style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px;">
                             <a href="{{ route('tickets.show', $ticket) }}"
-                               style="padding: 10px 18px; background-color: #e5e7eb; color: #374151; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 500;">
+                               style="padding: 12px 20px; background-color: #e5e7eb; color: #374151; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 500;">
                                 Cancelar
                             </a>
                             <button type="submit"
-                                    style="background-color: #1e3a5f; color: #ffffff; padding: 10px 18px; border-radius: 6px; border: none; cursor: pointer; font-size: 14px; font-weight: 500;">
+                                    style="background-color: #1e3a5f; color: #ffffff; padding: 12px 20px; border-radius: 6px; border: none; cursor: pointer; font-size: 14px; font-weight: 500;">
                                 Guardar cambios
                             </button>
                         </div>

@@ -253,7 +253,7 @@
     {{-- Modal compartido: solo una plantilla activa a la vez según "modal" --}}
     <div x-show="modal" x-cloak style="position: fixed; inset: 0; z-index: 70;">
         <div style="width:100%; height:100%; background-color:rgba(15,23,42,0.6); display:flex; align-items:center; justify-content:center; padding:24px; box-sizing:border-box;" @click.self="closeModal()">
-            <div class="ts-modal-box" style="border-radius:10px; max-width:460px; width:100%; box-shadow:0 20px 40px rgba(0,0,0,.25);">
+            <div class="ts-modal-box" style="border-radius:10px; max-width:460px; width:100%; max-height:90vh; overflow-y:auto; box-shadow:0 20px 40px rgba(0,0,0,.25);">
 
                 <template x-if="modal === 'hold'">
                     <div>

@@ -6,6 +6,7 @@ use App\Models\TicketActivityLog;
 use App\Models\TicketComment;
 use App\Models\Ticket;
 use App\Notifications\TicketCommentNotification;
+use App\Services\SafeNotifier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -36,9 +37,9 @@ class TicketCommentController extends Controller
         // Las notas internas no generan notificación al solicitante: no debe enterarse de que existen.
         if (! $isInternal) {
             if ($ticket->user_id === Auth::id()) {
-                $ticket->agent?->notify(new TicketCommentNotification($ticket, $comment));
+                SafeNotifier::send($ticket->agent, new TicketCommentNotification($ticket, $comment));
             } else {
-                $ticket->user->notify(new TicketCommentNotification($ticket, $comment));
+                SafeNotifier::send($ticket->user, new TicketCommentNotification($ticket, $comment));
             }
         }
 

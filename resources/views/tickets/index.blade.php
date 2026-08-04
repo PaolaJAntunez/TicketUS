@@ -161,6 +161,7 @@
             border:1px solid #e2e8f0;
             border-radius:8px;
             overflow:auto;
+            -webkit-overflow-scrolling:touch;
             max-height:75vh;
             box-shadow:0 1px 3px rgba(0,0,0,.1);
             box-sizing:border-box;">
