@@ -18,8 +18,6 @@
                 sol1: 'Configurar Correo Electrónico Corporativo',
                 sol2: 'Descargar Manual de Uso VPN',
                 sol3: 'Políticas de Seguridad de TI',
-                sol4: 'Manual de Uso del Portal',
-                sol5: 'Manual de Uso del Correo',
                 sol6: 'Políticas de Ciberseguridad para Usuarios',
 
                 filtroDesde: 'Desde',
@@ -81,8 +79,6 @@
                 sol1: 'Configure Corporate Email',
                 sol2: 'Download VPN User Manual',
                 sol3: 'IT Security Policies',
-                sol4: 'Portal User Manual',
-                sol5: 'Email User Manual',
                 sol6: 'Cybersecurity Policies for Users',
 
                 filtroDesde: 'From',

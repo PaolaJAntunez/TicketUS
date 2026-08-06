@@ -55,6 +55,12 @@
                                     <span style="background-color: #dbeafe; color: #1e40af; padding: 4px 10px; border-radius: 9999px; font-size: 12px; font-weight: 600;">
                                         {{ $flow->levels->count() }} {{ $flow->levels->count() === 1 ? 'nivel' : 'niveles' }}
                                     </span>
+                                    @php $missingApprovers = $flow->levels->whereNull('approver_id')->count(); @endphp
+                                    @if($missingApprovers > 0)
+                                        <span style="background-color: #fee2e2; color: #991b1b; padding: 4px 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; margin-left: 6px; white-space: nowrap;">
+                                            ⚠ {{ $missingApprovers }} {{ $missingApprovers === 1 ? 'nivel sin aprobador' : 'niveles sin aprobador' }}
+                                        </span>
+                                    @endif
                                 </td>
                                 <td style="padding: 16px 24px; font-size: 14px;">
                                     <div style="display: flex; gap: 8px;">

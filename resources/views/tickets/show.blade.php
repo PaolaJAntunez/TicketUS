@@ -466,6 +466,7 @@
                                         'reminder_added' => ['icon' => 'ti-bell', 'label' => 'Recordatorio agregado', 'color' => '#b45309'],
                                         'tag_added' => ['icon' => 'ti-tag', 'label' => 'Etiqueta agregada', 'color' => '#4338ca'],
                                         'tag_removed' => ['icon' => 'ti-tag-off', 'label' => 'Etiqueta quitada', 'color' => '#64748b'],
+                                        'approval_level_unassigned' => ['icon' => 'ti-alert-triangle', 'label' => 'Nivel sin aprobador', 'color' => '#991b1b'],
                                     ];
                                     // Igual que en el tab de Comentarios: el texto de la nota interna y del
                                     // recordatorio quedó guardado como description de estos logs, así que el

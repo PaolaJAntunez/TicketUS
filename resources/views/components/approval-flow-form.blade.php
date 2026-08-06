@@ -151,6 +151,11 @@
                                 </div>
                             </template>
 
+                            <p x-show="!level.approver_id" x-cloak
+                               style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #991b1b; background-color: #fee2e2; border: 1px solid #fecaca; border-radius: 6px; padding: 6px 10px; margin: 8px 0 0 0;">
+                                ⚠ Sin aprobador — el ticket puede quedar atascado en este nivel.
+                            </p>
+
                             <input type="hidden" :name="`levels[${index}][approver_id]`" :value="level.approver_id">
                         </div>
 

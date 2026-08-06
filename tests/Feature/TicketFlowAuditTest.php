@@ -761,4 +761,73 @@ class TicketFlowAuditTest extends TestCase
         $response->assertSessionHasNoErrors();
         $this->assertCount(0, Ticket::first()->attachments);
     }
+
+    /**
+     * [Fix: nivel sin aprobador] Si el Nivel 2 de un flujo no tiene
+     * approver_id (el formulario lo permite a propósito), aprobar el Nivel 1
+     * ya NO debe quedar en silencio total: se registra un TicketActivityLog
+     * con la acción 'approval_level_unassigned' y se notifica a todos los
+     * admins con ApprovalLevelMissingApproverNotification -- en vez del
+     * ApprovalRequestedNotification normal, que no tiene a quién ir.
+     */
+    public function test_approving_into_a_level_without_an_approver_logs_and_notifies_admins(): void
+    {
+        $requester = User::factory()->create(['role' => 'user']);
+        $approver1 = User::factory()->create(['role' => 'agent']);
+        $admin1 = User::factory()->create(['role' => 'admin']);
+        $admin2 = User::factory()->create(['role' => 'admin']);
+
+        $category = Category::create(['name' => 'Compras', 'requires_approval' => true, 'is_active' => true]);
+        $flow = ApprovalFlow::create(['category_id' => $category->id, 'name' => 'Flujo de compras']);
+
+        $level1 = ApprovalLevel::create([
+            'approval_flow_id' => $flow->id,
+            'order' => 1,
+            'approver_id' => $approver1->id,
+            'name' => 'Nivel 1',
+        ]);
+
+        $level2 = ApprovalLevel::create([
+            'approval_flow_id' => $flow->id,
+            'order' => 2,
+            'approver_id' => null,
+            'name' => 'Nivel 2',
+        ]);
+
+        Notification::fake();
+
+        $this->actingAs($requester)->post(route('tickets.store'), [
+            'title' => 'Compra de licencias',
+            'description' => 'Detalle',
+            'category_id' => $category->id,
+            'priority' => 'medium',
+        ]);
+
+        $ticket = Ticket::first();
+
+        Notification::fake();
+
+        $response = $this->actingAs($approver1)->post(route('approvals.approve', [$ticket, $level1]), [
+            'comments' => 'ok',
+        ]);
+        $response->assertRedirect(route('approvals.index'));
+
+        $ticket->refresh();
+        $this->assertSame('pending_approval', $ticket->status, 'El ticket debe seguir pendiente, esperando el Nivel 2.');
+
+        $level2Approval = TicketApproval::where('ticket_id', $ticket->id)
+            ->where('approval_level_id', $level2->id)
+            ->first();
+        $this->assertNotNull($level2Approval);
+        $this->assertSame('pending', $level2Approval->status, 'El Nivel 2 debe quedar pendiente (no se pierde, solo no tiene quién lo resuelva todavía).');
+
+        $this->assertDatabaseHas('ticket_activity_logs', [
+            'ticket_id' => $ticket->id,
+            'action' => 'approval_level_unassigned',
+        ]);
+
+        Notification::assertSentTo($admin1, \App\Notifications\ApprovalLevelMissingApproverNotification::class);
+        Notification::assertSentTo($admin2, \App\Notifications\ApprovalLevelMissingApproverNotification::class);
+        Notification::assertNotSentTo($admin1, \App\Notifications\ApprovalRequestedNotification::class);
+    }
 }

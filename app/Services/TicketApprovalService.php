@@ -7,6 +7,7 @@ use App\Models\Ticket;
 use App\Models\TicketActivityLog;
 use App\Models\TicketApproval;
 use App\Models\User;
+use App\Notifications\ApprovalLevelMissingApproverNotification;
 use App\Notifications\ApprovalRequestedNotification;
 use App\Notifications\TicketRejectedNotification;
 use App\Notifications\TicketStatusUpdatedNotification;
@@ -49,7 +50,29 @@ class TicketApprovalService
                 ->where('approval_level_id', $nextLevel->id)
                 ->first();
 
-            SafeNotifier::send($nextApproval?->effectiveApprover(), new ApprovalRequestedNotification($ticket, $nextLevel));
+            $nextApprover = $nextApproval?->effectiveApprover();
+
+            if ($nextApprover) {
+                SafeNotifier::send($nextApprover, new ApprovalRequestedNotification($ticket, $nextLevel));
+            } else {
+                // El flujo permite dejar niveles sin aprobador asignado (para
+                // configurarlos antes de tener usuarios cargados, ver
+                // AdminController::validateApprovalFlow). Si el ticket llega
+                // a uno de esos niveles sin que nadie lo note, se queda
+                // "flotando" en pending_approval para siempre: en vez del
+                // no-op silencioso de SafeNotifier::send(null, ...), se deja
+                // rastro explícito y se avisa a todos los admins.
+                TicketActivityLog::record(
+                    $ticket,
+                    $actor,
+                    'approval_level_unassigned',
+                    'El nivel "'.$nextLevel->name.'" no tiene aprobador asignado; el ticket quedó pendiente de aprobación sin notificar a nadie.'
+                );
+
+                foreach (User::where('role', 'admin')->get() as $admin) {
+                    SafeNotifier::send($admin, new ApprovalLevelMissingApproverNotification($ticket, $nextLevel));
+                }
+            }
         } else {
             $oldStatus = $ticket->status;
             $ticket->update(['status' => 'open']);
